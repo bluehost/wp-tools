@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>WordPress Update Script by bluehost</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>WordPress Update Script</h1>
+        <h2>Open Source Script to Update WordPress Websites</h2>
+        <a href="https://github.com/bluehost/wordpress-update-script" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <p>wp_tools</p>
+
+<p>INTRO</p>
+
+<p>wp_tools was built to make the internet more secure.</p>
+
+<p>REQUIREMENTS</p>
+
+<p>wp_tools is written in Perl. Most, if not all, of these modules are core perl modules.</p>
+
+<p>We run wp_tools in a Linux environment. Not guaranteed on Windows servers.</p>
+
+<p>Perl 5.10.x (check what's on shared)</p>
+
+<p>= Perl Modules =
+sigtrap
+Cwd
+Fcntl
+File::Slurp
+File::Find::Rule
+File::Path
+Getopt::Long
+LWP::UserAgent
+Digest::SHA</p>
+
+<p>= Server Commands =</p>
+
+<p>dd
+tar
+awk
+ps
+du
+grep
+mysql
+and, of course, wp-cli</p>
+
+<p>USAGE</p>
+
+<p>wp_tools should be run from the home directory of the user. If wp_tools is run as root, a username must be passed to wp_tools; it will drop permissions to that user.</p>
+
+<p>wp_tools makes backups of, upgrades, and restores backups of WordPress installations (files and databases)
+usage:
+wp_tools [command] [options]
+e.g.
+wp_tools backup  --path=WORDPRESSPATH --backupdir=BACKUPDIR ...
+wp_tools upgrade --path=WORDPRESSPATH ...
+wp_tools restore --backupfile=BACKUPFILE ...</p>
+
+<pre><code>--help            show this help and exit
+--backupdir=str   path to store WordPress backups (required for backup)
+--backupfile=str  path to WordPress backup file (required for restore)
+--components=list comma-separated list of things to upgrade (default: core,plugin,theme)
+--force           try hard to perform the command, disregarding limits if necessary
+--max-count=num   delete the oldest backups, keeping this many (default: 5) 
+--max-dproc=num   maximum number of defunct processes on the system (default: 100)
+--max-load=num    maximum load average (default: 200)
+--max-size=num    maximum size (in bytes) of the installation (default: 5368709120)
+--max-run=num     maximum number of concurrent system-wide executions of this script (default: 50)
+--min-freemem=num minimum amount of free memory on the system (default: 1048576)
+--path=str        path to WordPress installation (required for backup, upgrade, optional for restore)
+--username=str    if root, drop privileges to specified user and chdir to user's home (required)
+--skip-backup     skips backup as part of an upgrade (not recommended, default: off)
+--wp_cli=str      command to execute when calling wp_cli (default: /usr/php/54/usr/bin/php-cli -c /etc/wp-cli/php.ini /usr/php/54/usr/bin/wp)
+</code></pre>
+
+<p>COMMANDS</p>
+
+<p>= backup =</p>
+
+<p>The backup command will create a full backup, including database, of your WordPress installation as long as it is under the --max-size limit (pre-compression).</p>
+
+<p>= restore =</p>
+
+<p>The restore command will restore a WordPress installation from a backup taken with the backup command.</p>
+
+<p>= upgrade =</p>
+
+<p>The upgrade command will upgrade your WordPress core, themes, and plugins to the latest version available. It take a full backup prior to update and then updates the components. After update, wp_tools will do a thorough check to make sure nothing broke on your site. If any failures are detected, wp_tools will automatically restore to the backup taken prior to update.</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/bluehost/wordpress-update-script/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/bluehost/wordpress-update-script/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/bluehost/wordpress-update-script"></a> is maintained by <a href="https://github.com/bluehost">bluehost</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-9156498-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
