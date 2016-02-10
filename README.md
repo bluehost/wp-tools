@@ -1,1 +1,1 @@
-# wordpress-update-script
+# wp-tools
