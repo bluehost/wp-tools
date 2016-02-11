@@ -171,6 +171,13 @@ before executing its command, and it does **NOT** translate relative paths. This
 outside of your home directory with a relative path, your paths won't be found. This is a temporary limitation that will
 be fixed soon.
 
+# CONTRIBUTORS
+
+Many people were involved in the creation of WordPress Tools. In particular:
+
+- Matt Andersen
+- Gabriel Peery
+
 # AUTHORS
 
 - Seth Johnson &lt;sj@bluehost.com>

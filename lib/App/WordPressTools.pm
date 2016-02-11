@@ -12,24 +12,6 @@ App::WordPressTools - tools to backup and upgrade WordPress installations
 This module is part of the WordPress Tools package. For information about how to install and use the command-line
 program, see L<wp-tools>.
 
-=head1 AUTHORS
-
-=over 4
-
-=item *
-
-Seth Johnson <sj@bluehost.com>
-
-=item *
-
-Charles McGarvey <cmcgarvey@bluehost.com>
-
-=item *
-
-Garth Mortensen <gmortensen@bluehost.com>
-
-=back
-
 =head1 COPYRIGHT AND LICENSE
 
 This software is copyright (c) 2016 by Bluehost Inc.

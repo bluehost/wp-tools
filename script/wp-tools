@@ -208,6 +208,22 @@ before executing its command, and it does B<NOT> translate relative paths. This 
 outside of your home directory with a relative path, your paths won't be found. This is a temporary limitation that will
 be fixed soon.
 
+=head1 CONTRIBUTORS
+
+Many people were involved in the creation of WordPress Tools. In particular:
+
+=over 4
+
+=item *
+
+Matt Andersen
+
+=item *
+
+Gabriel Peery
+
+=back
+
 =head1 AUTHORS
 
 =over 4
