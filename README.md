@@ -16,7 +16,7 @@ wp-tools - tools to backup and upgrade WordPress installations
 # DESCRIPTION
 
 WordPress Tools is a set of tools that allow you to backup, restore, and upgrade WordPress sites. The tools are
-especially useful for upgrading outdated sites and for scripting the backing up and upgrading of **many** sites.
+especially useful for upgrading very outdated sites and for scripting the backing up and upgrading of **many** sites.
 
 WordPress Tools was built to make the Internet more secure. A huge number of websites on the Internet use
 [WordPress](https://wordpress.org/), because it's awesome, but a large portion of those sites do not run the latest
@@ -33,6 +33,8 @@ killing your server.
 # INSTALLATION
 
 There are several ways to install WordPress Tools to your system.
+
+Make sure you have [WP-CLI](http://wp-cli.org/) and the other ["DEPENDENCIES"](#dependencies) installed.
 
 ## Using cpanm
 
@@ -52,9 +54,9 @@ to install the `wp-tools` executable to a system directory, like `/usr/local/bin
 
 ## Downloading just the executable
 
-If you want to handle dependencies yourself and just want the `wp-tools` executable, you can do:
+If you want to handle the Perl dependencies yourself and just want the `wp-tools` executable, you can do:
 
-    curl -OL https://github.com/bluehost/wp-tools/raw/solo/wp-tools
+    curl -OL https://raw.githubusercontent.com/bluehost/wp-tools/solo/wp-tools
     chmod +x wp-tools
 
 to download the `wp-tools` executable to your current directory.
@@ -71,6 +73,9 @@ If you're a developer and want to hack on the source, clone the repository and p
 
 # DEPENDENCIES
 
+WordPress Tools requires these other programs and libraries in order to do its work. You probably have most of these on
+your system already, and the cpanm method of installing wp-tools will handle the Perl module dependencies for you.
+
 - [WP-CLI](http://wp-cli.org/)
 - [GNU Coreutils](https://www.gnu.org/software/coreutils/)
 - [GNU Tar](https://www.gnu.org/software/tar/)
@@ -78,7 +83,7 @@ If you're a developer and want to hack on the source, clone the repository and p
 - grep
 - mysql (MySQL server client)
 - procps
-- Various perl modules (see the distributed `cpanfile` file for a list)
+- Various Perl modules (see the distributed `cpanfile` file for a list)
 
 # OPTIONS
 
