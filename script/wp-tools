@@ -58,7 +58,7 @@ to install the F<wp-tools> executable to a system directory, like F</usr/local/b
 
 If you want to handle the Perl dependencies yourself and just want the F<wp-tools> executable, you can do:
 
-    curl -OL https://github.com/bluehost/wp-tools/raw/solo/wp-tools
+    curl -OL https://raw.githubusercontent.com/bluehost/wp-tools/solo/wp-tools
     chmod +x wp-tools
 
 to download the F<wp-tools> executable to your current directory.
