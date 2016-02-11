@@ -1,0 +1,1202 @@
+#!perl
+
+=head1 NAME
+
+wp-tools - tools to backup and upgrade WordPress installations
+
+=head1 SYNOPSIS
+
+    # simple installation from CPAN
+    cpanm App::WordPressTools
+
+    # view usage information
+    wp-tools --help
+
+    # common usage
+    wp-tools upgrade|backup|restore OPTIONS...
+
+=head1 DESCRIPTION
+
+WordPress Tools is a set of tools that allow you to backup, restore, and upgrade WordPress sites. The tools are
+especially useful for upgrading very outdated sites and for scripting the backing up and upgrading of B<many> sites.
+
+WordPress Tools was built to make the Internet more secure. A huge number of websites on the Internet use
+L<WordPress|https://wordpress.org/>, because it's awesome, but a large portion of those sites do not run the latest
+version of WordPress which makes them susceptible to hacking. WordPress Tools can be used to get those sites up-to-date
+again, and that makes the whole Internet more secure.
+
+The code has been used in production and has already upgraded over two million WordPress sites, but it has little
+real-world testing outside of Linux at this point so your mileage may vary if you have a different operating system.
+Stay tuned as we add support for more platforms, and please contribute if you feel like it.
+
+The command-line program also has a lot of options for managing server load, so you can upgrade your sites without
+killing your server.
+
+=head1 INSTALLATION
+
+There are several ways to install WordPress Tools to your system.
+
+Make sure you have L<WP-CLI|http://wp-cli.org/> and the other L</DEPENDENCIES> installed.
+
+=head2 Using cpanm
+
+The easiest way to install WordPress Tools is using L<cpanm>. If you have a local perl (plenv, perlbrew, etc.), you can
+just do:
+
+    cpanm App::WordPressTools
+
+to install the F<wp-tools> executable and its dependencies. The executable will be installed to your perl's bin path,
+like F<~/perl5/perlbrew/bin/wp-tools>.
+
+If you're installing to your system perl, you can do:
+
+    cpanm --sudo App::WordPressTools
+
+to install the F<wp-tools> executable to a system directory, like F</usr/local/bin/wp-tools> (depending on your perl).
+
+=head2 Downloading just the executable
+
+If you want to handle the Perl dependencies yourself and just want the F<wp-tools> executable, you can do:
+
+    curl -OL https://raw.githubusercontent.com/bluehost/wp-tools/solo/wp-tools
+    chmod +x wp-tools
+
+to download the F<wp-tools> executable to your current directory.
+
+=head2 For developers
+
+If you're a developer and want to hack on the source, clone the repository and pull the dependencies:
+
+    git clone https://github.com/bluehost/wp-tools.git
+    cd wp-tools
+    cpanm Dist::Zilla
+    dzil authordeps --missing | cpanm
+    dzil listdeps --author --develop --missing | cpanm
+
+=head1 DEPENDENCIES
+
+WordPress Tools requires these other programs and libraries in order to do its work. You probably have most of these on
+your system already, and the cpanm method of installing wp-tools will handle the Perl module dependencies for you.
+
+=over 4
+
+=item *
+
+L<WP-CLI|http://wp-cli.org/>
+
+=item *
+
+L<GNU Coreutils|https://www.gnu.org/software/coreutils/>
+
+=item *
+
+L<GNU Tar|https://www.gnu.org/software/tar/>
+
+=item *
+
+awk
+
+=item *
+
+grep
+
+=item *
+
+mysql (MySQL server client)
+
+=item *
+
+procps
+
+=item *
+
+Various Perl modules (see the distributed F<cpanfile> file for a list)
+
+=back
+
+=head1 OPTIONS
+
+=over 4
+
+=item --help
+
+Show usage information and exit.
+
+=item --force
+
+If there are any resource limits in effect, ignore them and do the command anyway.
+
+=item --max-count=num
+
+Delete the oldest backups, keeping the number provided (default: 5).
+
+=item --max-dproc=num
+
+Refuse to execute if the maximum number of defunct processes on the system exceeds this number (default: 100).
+
+=item --max-load=num
+
+Refuse to execute if the load average exceeds this number (default: 200).
+
+=item --max-size=num
+
+Refuse to back up a site if its uncompressed size on disk exceeds this number of bytes (default: 5368709120).
+
+=item --max-run=num
+
+Do not allow more than this number of concurrent system-wide executions of the script (default: 50).
+
+=item --min-freemem=num
+
+Refuse to execute if free memory has dropped below this number of bytes (default: 1048576).
+
+=item --wp-cli=path
+
+If your F<wp-cli> program has a different name than F<wp> or is not in your C<$PATH>, you can specify the command to be
+used to call wp-cli.
+
+=item --username=name
+
+If you run wp-tools as a root user, it will drop permissions to the specified user and C<chdir> to their home directory.
+
+=back
+
+=head1 COMMANDS
+
+=over 4
+
+=item upgrade
+
+The upgrade command will upgrade your WordPress core, themes, and plugins to the latest version available. It takes
+a full backup prior to the update. After the update, wp-tools will do a quick check to try to determine that nothing
+broke on your site. If any failures are detected, wp-tools will automatically restore to the backup taken prior to
+update.
+
+=item backup
+
+The backup command will create a full backup, including database, of your WordPress installation as long as it is under
+the --max-size limit (pre-compression).
+
+=item restore
+
+The restore command will restore a WordPress installation from a backup taken using the backup command.
+
+=back
+
+=head1 EXAMPLES
+
+    # upgrade a site
+    wp-tools upgrade --path=public_html/myblog \
+                     --backupdir=myblog_backups
+
+    # upgrade only plugins and themes
+    wp-tools upgrade --path=public_html/myblog  \
+                     --backupdir=myblog_backups \
+                     --components=plugin,theme
+
+    # backup a site
+    wp-tools backup --path=public_html/mysite \
+                    --backupdir=backups/mysite
+
+    # restore a site to a previous state
+    wp-tools restore --backupfile=backups/mysite/wp_backup1428524082.tar.gz
+
+=head1 BUGS
+
+Currently, wp-tools tries very hard to run with your C<$HOME> as the current working directory. It will C<chdir> there
+before executing its command, and it does B<NOT> translate relative paths. This means that if you run wp-tools from
+outside of your home directory with a relative path, your paths won't be found. This is a temporary limitation that will
+be fixed soon.
+
+=head1 AUTHORS
+
+=over 4
+
+=item *
+
+Seth Johnson <sj@bluehost.com>
+
+=item *
+
+Charles McGarvey <cmcgarvey@bluehost.com>
+
+=item *
+
+Garth Mortensen <gmortensen@bluehost.com>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2016 by Bluehost Inc.
+
+This is free software, licensed under:
+
+The GNU General Public License, Version 2, June 1991
+
+=cut
+
+
+use strict;
+use warnings;
+
+use App::WordPressTools;
+our $VERSION = $App::WordPressTools::VERSION;
+
+use sigtrap qw(die normal-signals);
+
+use Digest::SHA qw(sha1_hex);
+use Fcntl qw(:DEFAULT :flock);
+use File::Find;
+use File::Path;
+use File::Slurp qw(read_file write_file);
+use Getopt::Long qw(GetOptions);
+use LWP::UserAgent;
+use String::ShellQuote;
+
+
+my $default = {
+    backup_dir  => '',
+    backup_file => '',
+    components  => 'core,plugin,theme',
+    force       => '',
+    max_await   => 50,
+    max_count   => 5,
+    max_dproc   => 100,
+    max_load    => 200,
+    max_run     => 50,
+    max_size    => 1024,    #MB
+    min_space   => 25600,   #MB
+    min_freemem => 1048576,
+    path        => '',
+    username    => '',
+    wp_cli      => 'wp',
+    skip_backup => undef,
+};
+
+my @backup_whitelist = qw(
+.htaccess
+favicon.ico
+index.php
+license.txt
+readme.html
+wp-activate.php
+wp-admin
+wp-blog-header.php
+wp-comments-post.php
+wp-config-sample.php
+wp-config.php
+wp-content
+wp-cron.php
+wp-includes
+wp-links-opml.php
+wp-load.php
+wp-login.php
+wp-mail.php
+wp-settings.php
+wp-signup.php
+wp-trackback.php
+xmlrpc.php
+);
+
+sub help {
+    my $exit_status = shift;
+    my $alert       = shift || '';
+    print <<"END";
+wp-tools makes backups of, upgrades, and restores backups of WordPress installations (files and databases)
+usage:
+wp-tools [command] [options]
+e.g.
+wp-tools backup  --path=WORDPRESSPATH --backupdir=BACKUPDIR ...
+wp-tools upgrade --path=WORDPRESSPATH ...
+wp-tools restore --backupfile=BACKUPFILE ...
+
+    --help            show this help and exit
+    --backupdir=str   path to store WordPress backups (required for backup)
+    --backupfile=str  path to WordPress backup file (required for restore)
+    --components=list comma-separated list of things to upgrade (default: $default->{components})
+    --force           try hard to perform the command, disregarding limits if necessary
+    --max-await=num   maximum time (ms) for IO requests on the system (default: $default->{max_await})
+    --max-count=num   delete the oldest backups, keeping this many (default: $default->{max_count})
+    --max-dproc=num   maximum number of defunct processes on the system (default: $default->{max_dproc})
+    --max-load=num    maximum load average (default: $default->{max_load})
+    --max-size=num    maximum size (in MB) of the installation (default: $default->{max_size})
+    --max-run=num     maximum number of concurrent system-wide executions of this script (default: $default->{max_run})
+    --min-freemem=num minimum amount of free memory on the system (default: $default->{min_freemem})
+    --min-space=num   minimum amount of free space on the partition (default: $default->{min_space})
+    --path=str        path to WordPress installation (required for backup, upgrade, optional for restore)
+    --username=str    if root, drop privileges to specified user and chdir to user's home (required)
+    --skip-backup     skips backup as part of an upgrade (not recommended, default: off)
+    --wp-cli=str      command to execute when calling wp_cli (default: $default->{wp_cli})
+END
+    print "\n\n$alert\n" if $alert;
+    exit(defined $exit_status ? $exit_status : 1);
+}
+
+if (grep { /^--version$/ } @ARGV) {
+    print "WordPress Tools, version $main::VERSION\n";
+    exit 0;
+}
+
+my $args = {%$default};
+GetOptions(
+    'backupdir=s'   => \$args->{'backup_dir'},
+    'backupfile=s'  => \$args->{'backup_file'},
+    'components=s'  => \$args->{'components'},
+    'force'         => \$args->{'force'},
+    'max-await=s'   => \$args->{'max_await'},
+    'max-count=s'   => \$args->{'max_count'},
+    'max-dproc=s'   => \$args->{'max_dproc'},
+    'max-load=s'    => \$args->{'max_load'},
+    'max-run=s'     => \$args->{'max_run'},
+    'max-size=s'    => \$args->{'max_size'},
+    'min-freemem=s' => \$args->{'min_freemem'},
+    'min-space=s'   => \$args->{'min_space'},
+    'path=s'        => \$args->{'path'},
+    'username=s'    => \$args->{'username'},
+    'wp-cli=s'      => \$args->{'wp_cli'},
+    'skip-backup'   => \$args->{'skip_backup'},
+    'help'          => sub { help(0) },
+) or help;
+
+my $command = lc($ARGV[0] || '');
+if (   !$command
+    || $command !~ /^(?:backup|restore|upgrade)$/
+    || (!$args->{'backup_dir'}  && $command =~ /^(?:backup)$/)
+    || (!$args->{'backup_dir'}  && $command =~ /^(?:upgrade)$/ && !$args->{'skip_backup'})
+    || (!$args->{'path'}        && $command =~ /^(?:backup|upgrade)$/)
+    || (!$args->{'backup_file'} && $command =~ /^(?:restore)$/)
+    || (!$args->{'components'}  && $command =~ /^(?:upgrade)$/)
+    || !$args->{'wp_cli'} ) {
+    help(1, "Required parameter missing");
+}
+
+### check box load
+if ($args->{max_load} && !$args->{force}) {
+    open(my $fh, '<', '/proc/loadavg');
+    my $loadfile = readline $fh;
+    close $fh;
+    my ($load) = $loadfile =~ /^(\S+)/;
+    if (int($load) > $args->{max_load}) {
+        die "Server load is too high ($load), please retry later.";
+    }
+}
+
+### check box memory usage
+if ($args->{min_freemem} && !$args->{force}) {
+    my $mem = read_file(q{/proc/meminfo});
+    my $free;
+    for my $memcheck (qw(MemFree SwapFree Buffers Cached)) {
+        ($free->{$memcheck}) = $mem =~ m/^$memcheck:*\s*(\d+)/gsm;
+        $free->{$memcheck} ||= 0;
+    }
+    if (($free->{'Buffers'} + $free->{'Cached'} + $free->{'MemFree'}) < $args->{'min_freemem'}) {
+        die "Insufficient available server memory (bcm), please retry later";
+    }
+    my $swapon = `swapon -s | wc -l`;
+    chomp $swapon;
+    $swapon--;
+    if ($swapon && $free->{'SwapFree'} < $args->{'min_freemem'}) {
+        die "Insufficient available server memory (s), please retry later";
+    }
+}
+
+### check defunct process count
+if ($args->{max_dproc} && !$args->{force}) {
+    #my $dproc = `ps -o state | grep D | wc -l`;
+    my $dproc = `awk '/procs_blocked/ {print \$2}' /proc/stat`;
+    if ($dproc > $args->{'max_dproc'}) {
+        die 'Process queue full, please try again later.';
+    }
+}
+
+my ($uid, $gid, $home_dir);
+### determine who we are or should be running as
+if ($< == 0) {
+    if (!$args->{'username'}) {
+        help(1, "You cannot $command a WordPress installation as a root user");
+    }
+    ($uid, $gid, $home_dir) = (getpwnam $args->{'username'})[2, 3, 7];
+}
+else {
+    my $username;
+    ($username, $uid, $gid, $home_dir) = (getpwuid $<)[0, 2, 3, 7];
+    $args->{'username'} = $username if !$args->{'username'};
+}
+
+### check space and average IO wait time of the home partition
+if (my ($homeslash) = !$args->{'force'} && $home_dir && $home_dir =~ m{^(/home\d+)/}) {
+    #get available space on /home for the user in question in POSIX standard
+    my $df = `df -P $homeslash | tail -1`;
+    my ($device,undef,undef,$available) = split(/\s+/, $df);
+    #convert to MB
+    my $mbavail  = $available / 1024;
+    die "Not enough space available for backup ($mbavail MB)" if $mbavail < $args->{'min_space'};
+    if ($args->{max_await} && $device !~ /^(?:rootfs|fakefs)/) {
+        my $iostat = `iostat $device -dx 10 2 | tail -2`;
+        chomp $iostat;
+        my @iostat = split(/\s+/, $iostat);
+        my $await = $iostat[9];
+        if (!$await || $await !~ /^[0-9.]+$/) {
+            warn "ignoring that await is not a number ($await)";
+            $await = 0;
+        }
+        die "Average IO wait time ($await) is too high on $homeslash" if $args->{'max_await'} < $await;
+    }
+}
+
+### drop permissions
+if ($< == 0) {
+    #dmother
+    #added use English; equivalent statements for clarity
+    #keeping punctuation variables for speed
+    #$REAL_GROUP_ID = $EFFECTIVE_GROUP_ID = "$gid $gid";
+    $( = $) = "$gid $gid";
+    #$REAL_USER_ID = $EFFECTIVE_USER_ID = $uid;
+    $< = $> = $uid;
+    #cannot perform this action as root
+    if ($< == 0) {
+        die "Failed to relinquish privileges to user $args->{'username'}: $!";
+    }
+}
+chdir($home_dir);
+
+### prevent too many concurrent executions
+our %pid_files;
+sub create_pid_file {
+    my $file = shift;
+    return $pid_files{$file} if $pid_files{$file};
+    sysopen(my $fh, $file, O_RDWR|O_CREAT) or die "Open pid file failed: $!";
+    flock($fh, LOCK_EX|LOCK_NB) or die "Locking pid file ($file) failed: $!";
+    chmod(0666, $file);     # explicitly ignore chmod errors since we may not be the owner
+    print $fh "$$\n";
+    return $pid_files{$file} = $fh;
+}
+sub unlink_pid_file {
+    my $file = shift;
+    my $fh   = $pid_files{$file} or return;
+    close($fh);
+    unlink($file);      # explicitly ignore unlink errors since we may not be the owner
+}
+for my $i (1..$args->{max_run}) {
+    my $num  = sprintf('%04d', $i);
+    my $file = "/tmp/wp_backup-${num}.pid";
+    last if eval { create_pid_file($file) };
+}
+if (!keys %pid_files && !$args->{force}) {
+    die 'Too many concurrent executions; try again later.';
+}
+sub _lock_path {
+    my $path = shift;
+    $path =~ s!/*$!!;
+    my $hash = sha1_hex($path);
+    create_pid_file(".wp_backup-${hash}.pid");
+    return $hash;
+}
+END {
+    unlink_pid_file($_) for (keys %pid_files);
+}
+
+my $nice_path    = $args->{path} || '';
+$nice_path       =~ s/^\///;
+my @parts        = split '/', $nice_path;
+my $wpdir        = $parts[-1] || '';
+my $parent       = $nice_path;
+$parent          =~ s/\Q$wpdir\E\/?//;
+my $parentq      = shell_quote($parent);
+my $wpdirq       = shell_quote($wpdir);
+my $pathq        = shell_quote($nice_path);
+my ($wp_cli_path, $version, $canonversion, $plus3713);
+my $canon3713    = _canon_ver('3.7.13');
+our $maintenance;
+our $mode;
+our $definition_check_string = '/*WP-CLI_DEFINITION_CHECK*/';
+if ($command =~ /^(backup|upgrade)$/) {
+    $wp_cli_path  = "$args->{'wp_cli'} --path=$pathq";
+    $version      = _run_wpcli($nice_path, 'core version');
+    chomp $version;
+    $canonversion = _canon_ver($version);
+    $plus3713     = !!($canonversion ge $canon3713);
+}
+
+if (my $method = __PACKAGE__->can($command)) {
+    my $return = eval{$method->()};
+    if ($@) {
+        print "Unable to $command: $@";
+        exit 1;
+    }
+    elsif ($return && ref $return) {
+        print "$return->{'message'}\n" || "Successfully completed $command operation.\n";
+        exit($return->{'success'} ? 0 : 1);
+    }
+    exit 1;
+}
+
+sub backup {
+    my $time            = time;
+    my $hash            = _lock_path($nice_path);
+
+    my $backup_file     = "wp_backup${time}.tar.gz";
+    our $db_file        = "wp_backup${hash}.sql";
+    our $manifest_file  = "wp_backup${hash}.MANIFEST";
+    our $defaults_file  = "wp_backup${hash}.temporary.my.cnf";
+
+    my $skips = {
+        uploads => 0,
+        backups => 0,
+    };
+    my $wp_content_path = shell_quote("$args->{'path'}/wp-content");
+    my $dums = eval{`du -ms $wp_content_path/*`};
+    my $wp_content_size;
+    for my $entry (split(/[\r\n]+/, $dums)) {
+        my ($size, $path) = $entry =~ m/^(\d+).*wp-content\/(.*)$/;
+        $wp_content_size->{$path} = $size;
+    }
+    eval {
+        opendir (my $dh, $wp_content_path) || die;
+        while (my $path = readdir $dh) {
+            next if $path eq '.' || $path eq '..';
+            if ($path =~ /(?:backup|upload)/i) {
+                $skips->{$path} = $wp_content_size->{$path};
+            }
+            if ($wp_content_size->{$path} && $wp_content_size->{$path} > 200 && $path !~ /^(?:themes|plugins|mu-plugins|translations|languages)$/) {
+                $skips->{$path} = $wp_content_size->{$path};
+            }
+        }
+    };
+
+    ### check size of WordPress installation
+    if ($args->{max_size} && !$args->{force}) {
+        my @paths = map { -e "$nice_path/$_" ? shell_quote("$nice_path/$_") : () } @backup_whitelist;
+        my $paths = join(' ', @paths);
+        my $size = eval { `du -msc $paths` } || '';
+        $size =~ s/.*?(\d+)\s+total.*/$1/s;
+        if (!$size || $size !~ /^\d+$/) {
+            die 'Cannot determine size of WordPress installation';
+        }
+        #if $size > $args->{'max_size'}, reduce content that is included in the backup
+        my $backupsize = $size;
+        if ($args->{max_size} < $size) {
+            for my $type (keys %$skips) {
+                my $skip_path = shell_quote("$args->{'path'}/wp-content/$type");
+                if (-d $skip_path) {
+                    $skips->{$type} ||= eval { `du -ms $skip_path` } || 0;
+                    $skips->{$type} =~ s/^(\d+).*/$1/s;
+                    $backupsize -= $skips->{$type};
+                }
+                else {
+                    #we cannot skip what does not exist
+                    delete $skips->{$type};
+                }
+            }
+            if ($args->{max_size} < $backupsize) {
+                die "Cannot backup this WordPress installation because it is too large ($size/$backupsize)";
+            }
+        }
+    }
+
+    ### backup database
+    my $result = '';
+    my $dump_command = '';
+
+    # we cannot check the database without wp-config.php (credential storage location)
+    if (!-f "$nice_path/wp-config.php") {
+        $args->{'__skip_database'} = 1;
+    }
+    else {
+        #acceptable failure states for databaseless accounts
+        my $no_db_regex = qr/(?:Access denied for user|Unknown MySQL server host|Unknown database.*when selecting the database|is marked as crashed and last \(automatic\?\) repair failed when using LOCK TABLES|Got error: 130: Incorrect file format|Got error: 1146: Table.*doesn't exist when using LOCK TABLES|Got error: 1033: Incorrect information in file:|Got error: 1034: Incorrect key file for table|'Got error 28 from storage engine' when trying to dump tablespaces|Couldn't execute 'show fields from|references invalid table\(s\) or column\(s\) or function\(s\) or definer\/invoker of view lack rights to use them when using LOCK TABLE|Got error: 1017: Can't find file:)/;
+        if ($plus3713) {
+            $dump_command = "db export $db_file --add-drop-table 2>&1";
+            $result = _run_wpcli($nice_path, $dump_command);
+        }
+        if ($result =~ $no_db_regex) {
+            $args->{'__skip_database'} = 1;
+        }
+        elsif ($result !~ /^Success/) {
+            # wp-cli backup can fail for wp <3.7.13, so try mysqldump instead
+            my $wp_configq = shell_quote("$args->{'path'}/wp-config.php");
+            my $username = `grep DB_USER     <$wp_configq | grep -v '$definition_check_string' | cut -d \\' -f 4`;
+            my $password = `grep DB_PASSWORD <$wp_configq | grep -v '$definition_check_string' | cut -d \\' -f 4`;
+            my $database = `grep DB_NAME     <$wp_configq | grep -v '$definition_check_string' | cut -d \\' -f 4`;
+            #disallow starting whitespace
+            $username =~ s/^[\r\n]+//;
+            $password =~ s/^[\r\n]+//;
+            $database =~ s/^[\r\n]+//;
+            chomp $username;
+            chomp $password;
+            chomp $database;
+            if ($username =~ /[\r\n]/ || $password =~ /[\r\n]/ || $database =~ /[\r\n]/) {
+                die "Multiple credentials found in $args->{'path'}/wp-config.php.  Cannot determine which to use.  Backup operation halted.";
+            }
+            open (my $fh, '>', $defaults_file) or die "Cannot write to $defaults_file: $!";
+            close $fh;
+            chmod(0600, $defaults_file) or die "Cannot chmod $defaults_file: $!";
+            write_file($defaults_file,"[client]\nuser=$username\npassword=$password");
+            my $databaseq = shell_quote($database);
+            $dump_command = "mysqldump --defaults-file=$defaults_file $databaseq 2>&1 >$db_file";
+            my $result = `$dump_command`;
+            #acceptable failure states for databaseless accounts
+            if ($result =~ $no_db_regex) {
+                $args->{'__skip_database'} = 1;
+                $db_file = '';
+            }
+            elsif ($?) {
+                die "mysqldump command ($dump_command) failed (exit: $?): $result";
+            }
+        }
+        if (!$args->{'__skip_database'}) {
+            if (!-f $db_file || -s $db_file < 1024) {
+                die "Aborting because there doesn't seem to be any data to back up (command: $dump_command)";
+            }
+            open my $db_test, '<', $db_file;
+            my $first_line = <$db_test>;
+            close $db_test;
+            if ($first_line =~ /Usage: mysqldump/) {
+                die "Database dump looks like it failed because it contains usage (command: $dump_command)";
+            }
+        }
+    }
+
+    ### backup filesystem
+    my $backup_filename = "$args->{backup_dir}/$backup_file";
+    mkpath($args->{backup_dir}) if !-d $args->{backup_dir};
+    my $exclusions = '';
+    for my $type (keys %$skips) {
+        if (!$skips->{$type}) {
+            delete $skips->{$type};
+            next;
+        }
+        my $spath = "$wpdir/wp-content/$type";
+        $spath = "./$spath" if $spath =~ /^-/;
+        my $skip_path = shell_quote($spath);
+        $exclusions .= " --exclude $skip_path";
+    }
+    my $inclusions = '';
+    for my $file (@backup_whitelist) {
+        next if !-e "$args->{'path'}/$file";
+        my $apath = "$wpdir/$file";
+        $apath = "./$apath" if $apath =~ /^-/;
+        my $add_path = shell_quote($apath);
+        $inclusions .= " $add_path";
+    }
+    open(my $fh, '>', $manifest_file) or die "Cannot write to $manifest_file: $!";
+    print $fh "version:1\n";
+    print $fh "path:$nice_path\n";
+    print $fh "time:$time\n";
+    print $fh "nodb:1\n" if $args->{'__skip_database'};
+    if (scalar keys %$skips) {
+        print $fh "skipped:".join(',', keys %$skips)."\n";
+    }
+    close $fh;
+    my $transform = "--transform='s/^$manifest_file\$/wp_backup.MANIFEST/' --transform='s/^$db_file\$/wp_backup${time}.sql/'";
+    my $cd = $parent ? "-C $parentq" : '';
+    my $backup = `tar -czf $backup_filename $transform $manifest_file $db_file $cd $exclusions $inclusions`;
+    if (!-e $backup_filename) {
+        die 'Failed to create backup file';
+    }
+
+    ### delete old backups
+    if ($args->{max_count} && $args->{max_count} =~ /^\d+$/) {
+        my @files;
+        File::Find::find({
+            no_chdir    => 1,
+            wanted      => sub {
+                push @files, $_ if -f && m{/wp_backup\d+\.tar\.gz$};
+            },
+        }, $args->{'backup_dir'});
+
+        my @backups;
+        for my $file (@files) {
+            my ($time) = $file =~ m{wp_backup(\d+)\.tar\.gz$};
+            push @backups, {
+                file      => $file,
+                timestamp => $time,
+            };
+        }
+        my $count = 0;
+        for my $backup (sort { $b->{timestamp} <=> $a->{timestamp} } @backups) {
+            $count += 1;
+            if ($args->{'max_count'} < $count) {
+                unlink $backup->{file};
+            }
+        }
+    }
+
+    ### cleanup
+    END {
+        unlink($db_file)        if $db_file && -e $db_file;
+        unlink($manifest_file)  if $manifest_file && -e $manifest_file;
+        unlink($defaults_file)  if $defaults_file && -e $defaults_file;
+    }
+
+    return {
+        success     => 1,
+        path        => $args->{'path'},
+        file        => $backup_file,
+        backup_file => "$args->{'backup_dir'}/$backup_file",
+        message     => "Successfully backed up WordPress from $args->{'path'} to $backup_file",
+    };
+}
+
+sub restore {
+    if (!-e $args->{backup_file}) {
+        die "Backup file $args->{backup_file} not found";
+    }
+
+    my $backup_fileq = shell_quote($args->{'backup_file'});
+    my $manifest = eval { `tar -xOzf $backup_fileq --occurrence=1 wp_backup.MANIFEST 2>/dev/null` } || '';
+    my %manifest;
+    if (!$? && $manifest) {
+        %manifest = map { /^(\w+?):(.*)$/ ? ($1 => $2) : () } split(/\n/, $manifest);
+    }
+
+    my $hash        = _lock_path($nice_path);
+    my ($time)      = $manifest{time} ? ($manifest{time}) : $args->{backup_file} =~ /wp_backup(\d+)\.tar\.gz$/;
+    # time is needed to know the name of the database file in the tarball.
+    $time or die 'Cannot determine time of backup';
+    our $db_file        = "wp_backup${hash}.sql";
+    our $defaults_file  = "wp_backup${hash}.temporary.my.cnf";
+    my $path        = $args->{path} || $manifest{path} or die 'Cannot determine path to restore to';
+    $nice_path      = $manifest{path} || $path;
+    $nice_path      =~ s/^\///;
+    @parts          = split '/', $nice_path;
+    $wpdir          = $parts[-1];
+
+    my $wpdirq      = shell_quote($wpdir);
+    my $pathq       = shell_quote($nice_path);
+
+    our $saved_path = $path;
+    $saved_path =~ s!/+$!!;
+    $saved_path = "${saved_path}.restore";
+
+    if (-d $path) {
+        my $saved_pathq = shell_quote($saved_path);
+        my $err_out = `cp -al $pathq $saved_pathq 2>&1`;
+        if ($?) {
+            die "Could not copy $path to $saved_path: $err_out";
+        }
+    }
+
+    eval {
+        my $del  = _find_sed_delimiter($wpdir, $path);
+        my $bre  = _bre_quote($wpdir);
+        my $repl = _bre_quote($path, '\&');
+        if (!$del) {
+            die 'No available delimiter found to use with tar -x --transform';
+        }
+        my $transform = shell_quote("--transform=s${del}^$bre${del}$repl${del}");
+        my $restore_cmd = "tar -xzf $backup_fileq --recursive-unlink $transform $wpdirq 2>&1";
+        my $restore = `$restore_cmd`;
+        if ($?) {
+            die "File restore command ($restore_cmd) exited non-zero ($?): $restore";
+        }
+        if (!-d $path) {
+            die "File restore command ($restore_cmd) failed to actually restore files";
+        }
+
+        if (!$manifest{'nodb'}) {
+            my $transform = "--transform='s/^wp_backup${time}\\.sql\$/$db_file/'";
+            my $db_restore = `tar -xzf $backup_fileq $transform wp_backup${time}.sql 2>&1`;
+            if ($? || !-f $db_file) {
+                die "Cannot extract database restore file ($db_file): $db_restore";
+            }
+            $wp_cli_path  = "$args->{'wp_cli'} --path=".shell_quote($path);
+            $version      = _run_wpcli($path, 'core version');
+            chomp $version;
+            $canonversion = _canon_ver($version);
+            $plus3713     = !!($canonversion ge $canon3713);
+            if ($plus3713) {
+                my $dbfile = _run_wpcli($path, "db import $db_file --skip-plugins --skip-themes");
+            }
+            if (!$plus3713 || $?) {
+                my $wp_configq = shell_quote("$path/wp-config.php");
+                if (!-f "$path/wp-config.php") {
+                    die "Missing wp-config.php";
+                }
+                my $username = `grep DB_USER      <$wp_configq | grep -v '$definition_check_string' | cut -d \\' -f 4`;
+                my $password = `grep DB_PASSWORD  <$wp_configq | grep -v '$definition_check_string' | cut -d \\' -f 4`;
+                my $database = `grep DB_NAME      <$wp_configq | grep -v '$definition_check_string' | cut -d \\' -f 4`;
+                #disallow starting whitespace
+                $username =~ s/^[\r\n]+//;
+                $password =~ s/^[\r\n]+//;
+                $database =~ s/^[\r\n]+//;
+                chomp $username;
+                chomp $password;
+                chomp $database;
+                if ($username =~ /[\r\n]/ || $password =~ /[\r\n]/ || $database =~ /[\r\n]/) {
+                    die "Multiple credentials found in $args->{'path'}/wp-config.php.  Cannot determine which to use.  Restoration operation halted.";
+                }
+                open (my $fh, '>', $defaults_file) or die "Cannot write to $defaults_file: $!";
+                close $fh;
+                chmod(0600, $defaults_file) or die "Cannot chmod $defaults_file: $!";
+                write_file($defaults_file,"[client]\nuser=$username\npassword=$password");
+                my $databaseq = shell_quote($database);
+                `mysql --defaults-file=$defaults_file $databaseq <$db_file`;
+                if ($?) {
+                    die "Failed to restore database";
+                }
+            }
+        }
+
+        # if we skipped large directories in the backup procedure
+        # we must copy them from the installation we are replacing
+        my @skipped = split(/,/, $manifest{'skipped'} || '');
+        for my $dir (@skipped) {
+            my $src = "${saved_path}/wp-content/$dir";
+            my $dst = "${path}/wp-content/$dir";
+            if (-d $src) {
+                rmtree($dst) if -e $dst;
+                my $srcq = shell_quote($src);
+                my $dstq = shell_quote($dst);
+                my $err_out = `cp -al $srcq $dstq 2>&1`;
+                if ($?) {
+                    die "Could not copy $path to $saved_path: $err_out";
+                }
+            }
+            else {
+                # TODO - should this condition be fatal?
+                warn "Expected to restore using $dir in installation being replaced, but it is missing";
+            }
+        }
+    };
+    if ($@) {
+        my $err = $@;
+        if (-d $saved_path) {
+            rmtree($path);
+            if (!rename($saved_path, $path)) {
+                # this is the sad case
+                $err .= "; also could not move $saved_path back to $path: $!";
+                undef $saved_path;  # do not wipe out if we couldn't fully fix it
+            }
+        }
+        die $err;
+    }
+
+    ### cleanup
+    END {
+        unlink($db_file)        if $db_file && -e $db_file;
+        unlink($defaults_file)  if $defaults_file && -e $defaults_file;
+        rmtree($saved_path)     if $saved_path && -d $saved_path;
+    }
+
+    return {
+        success => 1,
+        path    => $path,
+        file    => $args->{'backup_file'},
+        message => "Successfully restored WordPress from $args->{'backup_file'} to $path",
+        ($args->{'failed'} ? (update_failure => $args->{'failed'}) : ()),
+    };
+}
+
+sub _canon_ver {(my $n=shift)=~s/(\d+)/sprintf "%06d", $1/eg; $n =~ tr/-:_/.../; return $n}
+
+sub upgrade {
+    my $hash            = _lock_path($nice_path);
+    our $defaults_file  = "wp_backup${hash}.temporary.my.cnf";
+
+    my %components = map { /^(core|plugin|theme)s?$/i ? (lc($1) => 1) : () } split(/,/, $args->{'components'});
+
+    if ($plus3713) {
+        ### check for possible updates
+        ### this check only works 3.7.13+, however 3.7.12- are guaranteed to have updates
+        my $core_check = _run_wpcli($nice_path, 'core check-update --skip-plugins --skip-themes 2>&1');
+        if ($components{'core'} && (!$core_check || $core_check =~ /Success: WordPress is at the latest version./) && !$?) {
+            delete $components{'core'};
+        }
+        for my $type (grep { $components{$_} } qw(plugin theme)) {
+            my $check = _run_wpcli($nice_path, "$type update --all --dry-run");
+            if ($check =~ /No $type updates available/) {
+                delete $components{$type};
+            }
+        }
+    }
+    if ($args->{'__skip_database'}) {
+        for my $type (qw(theme plugin)) {
+            delete $components{$type} if $components{$type};
+        }
+    }
+    ### exit if no updates available
+    if (!keys %components) {
+        print "No updates available.\n";
+        exit;
+    }
+
+    ### if not explicitly refused, make a backup first
+    my $backup = !$args->{'skip_backup'} ? backup() : undef;
+    die "Unable to make backup." if !$args->{'skip_backup'} && (!$backup || !ref $backup || !$backup->{'success'});
+    if ($backup && ref $backup && $backup->{'success'}) {
+        $args->{'backup_file'} = $backup->{'backup_file'};
+    }
+    if (!$args->{'skip_backup'} && (length($args->{'backup_file'}) == 0 || !-e $args->{'backup_file'} || !-s $args->{'backup_file'})) {
+        die "Unable to read backup file - upgrade stopped.";
+    }
+
+    #find all non-executable directories and make the executable (for listing)
+    my $fix_directories = `find $pathq -type d ! -perm /u+x -exec chmod u+x {} \\; ;`;
+    #find all non-writable files and make them user writable
+    my $set_permissions = `find $pathq ! -perm /u+w -exec chmod u+w {} \\; ;`;
+
+    #if a backup is made, disable maintenance mode temporarily
+    if (-e '.maintenance') {
+        $maintenance = '.not.maintenanc';
+        rename('.maintenance',$maintenance);
+    }
+
+    my $current_status;
+    my $ua = LWP::UserAgent->new();
+    if ($plus3713) {
+        ### default wp-cli status check
+        $current_status->{'wpcli_std'} = _run_wpcli($nice_path, q{eval 'echo "ok";'});
+        chomp $current_status->{'wpcli_std'} if $current_status->{'wpcli_std'};
+        ### npt "safe mode" status check
+        $current_status->{'wpcli_npt'} = _run_wpcli($nice_path, q{--skip-plugins --skip-themes eval 'echo "ok";'});
+        chomp $current_status->{'wpcli_npt'} if $current_status->{'wpcli_npt'};
+        ### get url and current default page size/status code
+        $current_status->{'siteurl'}  = _run_wpcli($nice_path, q{option get siteurl});;
+        $current_status->{'adminurl'} = "$current_status->{'siteurl'}/wp-admin";
+        my $resp = $ua->head($current_status->{'siteurl'});
+        $current_status->{'code'} = $resp->code;
+        $current_status->{'size'} = $resp->content_length() || 1;
+        my $aresp = $ua->head($current_status->{'adminurl'});
+        $current_status->{'admincode'} = $aresp->code;
+        $current_status->{'adminsize'} = $aresp->content_length() || 1;
+    }
+    elsif (-f "$args->{'path'}/wp-config.php") {
+        ### get url and current default page size/status code
+        my $wp_configq = shell_quote("$args->{'path'}/wp-config.php");
+        my $username = `grep DB_USER      <$wp_configq | grep -v '$definition_check_string' | cut -d \\' -f 4`;
+        my $password = `grep DB_PASSWORD  <$wp_configq | grep -v '$definition_check_string' | cut -d \\' -f 4`;
+        my $database = `grep DB_NAME      <$wp_configq | grep -v '$definition_check_string' | cut -d \\' -f 4`;
+        my $prefix   = `grep table_prefix <$wp_configq | grep -v '$definition_check_string' | cut -d \\' -f 2` || 'wp_';
+        $prefix      =~ s/[^\w_-]//g;
+        #disallow starting whitespace
+        $username =~ s/^[\r\n]+//;
+        $password =~ s/^[\r\n]+//;
+        $database =~ s/^[\r\n]+//;
+        chomp $username;
+        chomp $password;
+        chomp $database;
+        if ($username =~ /[\r\n]/ || $password =~ /[\r\n]/ || $database =~ /[\r\n]/) {
+            die "Multiple credentials found in $args->{'path'}/wp-config.php.  Cannot determine which to use.  Upgrade operation halted.";
+        }
+        if ($prefix =~ /[\r\n]/) {
+            die "Multiple database prefixes found in $args->{'path'}/wp-config.php.  Cannot determine which to use.  Upgrade operation halted.";
+        }
+        open (my $fh, '>', $defaults_file) or die "Cannot write to $defaults_file: $!";
+        close $fh;
+        chmod(0600, $defaults_file) or die "Cannot chmod $defaults_file: $!";
+        write_file($defaults_file,"[client]\nuser=$username\npassword=$password");
+        my $table = "${prefix}options";
+        my $databaseq = shell_quote($database);
+        my $siteurl_sql = qq{mysql -N -B -e --defaults-file=$defaults_file $databaseq "SELECT option_value FROM $table WHERE option_name = 'siteurl'"};
+        $current_status->{'siteurl'} = `$siteurl_sql`;
+        $current_status->{'adminurl'} = "$current_status->{'siteurl'}/wp-admin";
+        my $resp = $ua->head($current_status->{'siteurl'});
+        $current_status->{'code'} = $resp->code;
+        $current_status->{'size'} = $resp->content_length() || 1;
+        my $aresp = $ua->head($current_status->{'adminurl'});
+        $current_status->{'admincode'} = $resp->code;
+        $current_status->{'adminsize'} = $resp->content_length() || 1;
+    }
+
+    eval {
+        if ($components{'core'}) {
+            my $update = _run_wpcli($nice_path, ($args->{'force'} || !$plus3713) ? "core download --force 2>&1" : "core update 2>&1");
+            #try forcing errors
+            $update = _run_wpcli($nice_path, q{core download --force 2>&1}) if $?;
+            die "Upgrading WordPress core files exited with $? ($update)" if $?;
+            if (!$args->{'__skip_database'}) {
+                my $updatedb = _run_wpcli($nice_path, q{core update-db 2>&1});
+                #try harder
+                if ($?) {
+                    $updatedb = _run_wpcli($nice_path, q{core update-db  --skip-plugins --skip-themes 2>&1});
+                }
+                #allowable database failures
+                if ($updatedb !~ /(?:The site you have requested is not installed.)/) {
+                    die "Upgrading WordPress core database exited with $? ($updatedb)" if $?;
+                }
+            }
+        }
+        my $pt_ok = qr/(?:Warning: Update package not available.|Error establishing a database connection)/;
+        if ($components{'plugin'}) {
+            my $plugins  = _run_wpcli($nice_path, q{plugin update --all 2>&1});
+            if ($? && $plugins !~ /$pt_ok/gsm) {
+                die "Upgrading plugins exited with $? ($plugins)";
+            }
+        }
+        if ($components{'theme'}) {
+            my $themes   = _run_wpcli($nice_path, q{theme update --all 2>&1});
+            if ($? && $themes !~ /$pt_ok/gsm) {
+                die "Upgrading themes exited with $? ($themes)" if $?;
+            }
+        }
+    };
+    if ($@) {
+        $args->{'failed'} = $@;
+    }
+    if (!$args->{'failed'} && $plus3713) {
+        ### default wp-cli status check
+        if ($current_status->{'wpcli_std'} eq 'ok') {
+            my $test = _run_wpcli($nice_path, q{eval 'echo "ok";'});
+            chomp $test;
+            $args->{'failed'} = 'Failed standard WordPress check after update' if $test ne 'ok';
+        }
+        if (!$args->{'failed'} && $current_status->{'wpcli_npt'} eq 'ok') {
+            my $test = _run_wpcli($nice_path, q{--skip-plugins --skip-themes eval 'echo "ok";'});
+            chomp $test;
+            $args->{'failed'} = 'Failed safe mode WordPress check after update' if $test ne 'ok';
+        }
+    }
+    if (!$args->{'failed'} && $current_status->{'siteurl'}) {
+        ### get current default page size and status
+        my $resp       = $ua->head($current_status->{'siteurl'});
+        my $after_size = $resp->content_length() || 1;
+        my $average    = ($current_status->{'size'} + $after_size) / 2;
+        my $div        = $current_status->{'size'}/$after_size;
+        if ($div > 1.5 || $div < .5) {
+            $args->{'failed'} = 'Site download size changed by more than 50% after update (assuming failure).';
+        }
+        my $code = $resp->code;
+        if (!$args->{'failed'} && $code ne $current_status->{'code'} && $code ne '200' && $current_status->{'code'} !~ /^(?:4|5)/) {
+            $args->{'failed'} = "Site download status changed from $current_status->{'code'} to $code (assuming failure)";
+        }
+    }
+    if (!$args->{'failed'} && $current_status->{'adminurl'}) {
+        ### get current default page size and status
+        my $resp       = $ua->head($current_status->{'adminurl'});
+        my $after_size = $resp->content_length() || 1;
+        my $average    = ($current_status->{'adminsize'} + $after_size) / 2;
+        my $div        = $current_status->{'adminsize'}/$after_size;
+        if ($div > 1.5 || $div < .5) {
+            $args->{'failed'} = 'Site admin download size changed by more than 50% after update (assuming failure).';
+        }
+        my $code = $resp->code;
+        if (!$args->{'failed'} && $code ne $current_status->{'admincode'} && $code ne '200' && $current_status->{'admincode'} !~ /^(?:4|5)/) {
+            $args->{'failed'} = "Site admin download status changed from $current_status->{'admincode'} to $code (assuming failure)";
+        }
+    }
+
+    ### cleanup
+    END {
+        unlink($defaults_file) if $defaults_file && -e $defaults_file;
+        rename($maintenance,'.maintenance') if $maintenance;
+    }
+
+    #fail case vvv
+    if ($args->{'failed'}) {
+        print "Upgrade failure detected:$args->{'failed'}. Restoring from backup $args->{'backup_file'}...\n";
+        my $result = restore();
+        $result->{'success'} = 0;
+        return $result;
+    }
+    else {
+        my $upgraded = join(', ', map { $_ eq 'core' ? 'WordPress' : "${_}s" } keys %components);
+        return {
+            success => 1,
+            path    => $args->{'path'},
+            message => "Successfully upgraded $upgraded from $args->{'path'}",
+        };
+    }
+}
+
+sub _bre_quote {
+    my $str = shift;
+    my $bre = shift || '$.*[\]^';
+    $str =~ s/([\Q$bre\E])/\\$1/g;
+    $str =~ s/\n/\\n/g;
+    return $str;
+}
+
+# to work around the fact that `tar --transform' can't correctly escape the
+# delimiter of a sed substitution expression in the replacement text, this
+# subroutine finds a delimiter that can be used safely without escaping
+sub _find_sed_delimiter {
+    my $str = join('', @_);
+    my $bre = '$.*[\]^';
+    for my $n (1..255) {
+        my $del = pack('C', $n);
+        return $del if $str !~ /\Q$del\E/ && $del !~ /[\Q$bre\E]/;
+    }
+}
+
+sub _run_wpcli {
+    my $path    = shift;
+    my $command = shift;
+
+    _fix_wp_config($path);
+    my $ret = `$wp_cli_path $command`;
+    my $status = $?;
+    _restore_wp_config();
+
+    $? = $status;
+    return $ret;
+}
+
+### fix wp-config.php to workaround wpcli bug
+#   See https://github.com/wp-cli/wp-cli/issues/1631
+sub _fix_wp_config {
+    my $path = shift or die 'Path argument required';
+
+    our $config_file    = "$path/wp-config.php";
+    our $config_backup  = "$config_file.backup";
+
+    my $config_fileq    = shell_quote($config_file);
+    my $config_backupq  = shell_quote($config_backup);
+
+    return if !-e $config_file;
+
+    # make sure we are not generating from an auto-generated config
+    my $config_content = `cat $config_fileq`;
+    if ($config_content =~ m!WARNING: This config is auto-generated from .* for wpcli compatibility!) {
+        return;
+        #die "Refusing to generate wpcli-compatible wp-config.php because we already did";
+    }
+
+    # copy config to a backup location
+    my $err_out = `cp $config_fileq $config_backupq 2>&1`;
+    if ($?) {
+        die "Could not copy $config_file to $config_backup: $err_out";
+    }
+
+    # generate the new config
+    open(my $in,  '<', $config_backup) or die "Failed to open (cbf) $config_backup: $!";
+    #temporarily set permissions to rw?
+    $mode = (stat($config_file))[2] & 0777;
+    my $modestr = sprintf qq{%04o}, $mode;
+    if ($modestr !~ /^.[67]/) {
+        chmod($mode | 0600, $config_file);
+    }
+    else {
+        undef $mode;
+    }
+    open(my $out, '>', $config_file) or die "Failed to open (cfw) $config_file $!";
+    print $out "<?php\n";
+    print $out "/* WARNING: This config is auto-generated from $config_backup for wpcli compatibility! */\n";
+    while (my $line = <$in>) {
+        if ($line =~ /(?:define\((.+?),.+\)\s*;|\$\w+\s*=\s*['"].*['"]\s*;)/) {
+            $line = "if (!defined($1)) {$definition_check_string\n$line\n}$definition_check_string\n" if $1;
+            print $out $line;
+        }
+    }
+    print $out "require_once(ABSPATH . 'wp-settings.php');\n";
+    close($in);
+    close($out);
+
+    END {
+        _restore_wp_config();
+    }
+}
+
+sub _restore_wp_config {
+    our $config_file;
+    our $config_backup;
+
+    # restore original wp-config.php
+    if ($config_backup && -e $config_backup) {
+        unlink($config_file);
+        rename($config_backup, $config_file);
+    }
+    chmod($mode, $config_file) if $mode;
+}
+

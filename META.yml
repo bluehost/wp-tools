@@ -1,0 +1,36 @@
+---
+abstract: 'tools to backup and upgrade WordPress installations'
+author:
+  - 'Seth Johnson <sj@bluehost.com>'
+  - 'Charles McGarvey <cmcgarvey@bluehost.com>'
+  - 'Garth Mortensen <gmortensen@bluehost.com>'
+build_requires:
+  Test::More: '0'
+configure_requires:
+  ExtUtils::MakeMaker: '0'
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 5.043, CPAN::Meta::Converter version 2.150001'
+license: gpl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: App-WordPressTools
+no_index:
+  directory:
+    - t
+requires:
+  Digest::SHA: '0'
+  Fcntl: '0'
+  File::Find: '0'
+  File::Path: '0'
+  File::Slurp: '0'
+  Getopt::Long: '0'
+  LWP::UserAgent: '0'
+  String::ShellQuote: '0'
+  sigtrap: '0'
+resources:
+  bugtracker: https://github.com/bluehost/wp-tools/issues
+  repository: git://github.com/bluehost/wp-tools.git
+version: '1.0'
+x_contributors:
+  - 'Mike Hansen <web.mhansen@gmail.com>'

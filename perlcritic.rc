@@ -1,0 +1,2 @@
+#severity    = brutal
+exclude     = TestingAndDebugging::RequireUseStrict ValuesAndExpressions::ProhibitLeadingZeros
