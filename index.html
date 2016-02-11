@@ -89,7 +89,7 @@ wp-tools upgrade|backup|restore OPTIONS...
 </code></pre>
 <h1><a id="DESCRIPTION_15"></a>DESCRIPTION</h1>
 <p>WordPress Tools is a set of tools that allow you to backup, restore, and upgrade WordPress sites. The tools are
-especially useful for upgrading outdated sites and for scripting the backing up and upgrading of <strong>many</strong> sites.</p>
+especially useful for upgrading very outdated sites and for scripting the backing up and upgrading of <strong>many</strong> sites.</p>
 <p>WordPress Tools was built to make the Internet more secure. A huge number of websites on the Internet use
 <a href="https://wordpress.org/">WordPress</a>, because it’s awesome, but a large portion of those sites do not run the latest
 version of WordPress which makes them susceptible to hacking. WordPress Tools can be used to get those sites up-to-date
@@ -101,6 +101,7 @@ Stay tuned as we add support for more platforms, and please contribute if you fe
 killing your server.</p>
 <h1><a id="INSTALLATION_32"></a>INSTALLATION</h1>
 <p>There are several ways to install WordPress Tools to your system.</p>
+<p>Make sure you have <a href="http://wp-cli.org/">WP-CLI</a> and the other <a href="#DEPENDENCIES_71">DEPENDENCIES</a> installed.</p>
 <h2><a id="Using_cpanm_36"></a>Using cpanm</h2>
 <p>The easiest way to install WordPress Tools is using <a href="https://metacpan.org/pod/cpanm">cpanm</a>. If you have a local perl (plenv, perlbrew, etc.), you can
 just do:</p>
@@ -113,8 +114,8 @@ like <code>~/perl5/perlbrew/bin/wp-tools</code>.</p>
 </code></pre>
 <p>to install the <code>wp-tools</code> executable to a system directory, like <code>/usr/local/bin/wp-tools</code> (depending on your perl).</p>
 <h2><a id="Downloading_just_the_executable_52"></a>Downloading just the executable</h2>
-<p>If you want to handle dependencies yourself and just want the <code>wp-tools</code> executable, you can do:</p>
-<pre><code>curl -OL https://github.com/bluehost/wp-tools/raw/solo/wp-tools
+<p>If you want to handle the Perl dependencies yourself and just want the <code>wp-tools</code> executable, you can do:</p>
+<pre><code>curl -OL https://raw.githubusercontent.com/bluehost/wp-tools/solo/wp-tools
 chmod +x wp-tools
 </code></pre>
 <p>to download the <code>wp-tools</code> executable to your current directory.</p>
@@ -127,6 +128,8 @@ dzil authordeps --missing | cpanm
 dzil listdeps --author --develop --missing | cpanm
 </code></pre>
 <h1><a id="DEPENDENCIES_71"></a>DEPENDENCIES</h1>
+<p>WordPress Tools requires these other programs and libraries in order to do its work. You probably have most of these on
+your system already, and the cpanm method of installing wp-tools will handle the Perl module dependencies for you.</p>
 <ul>
 <li><a href="http://wp-cli.org/">WP-CLI</a></li>
 <li><a href="https://www.gnu.org/software/coreutils/">GNU Coreutils</a></li>
@@ -135,7 +138,7 @@ dzil listdeps --author --develop --missing | cpanm
 <li>grep</li>
 <li>mysql (MySQL server client)</li>
 <li>procps</li>
-<li>Various perl modules (see the distributed <code>cpanfile</code> file for a list)</li>
+<li>Various Perl modules (see the distributed <code>cpanfile</code> file for a list)</li>
 </ul>
 <h1><a id="OPTIONS_82"></a>OPTIONS</h1>
 <ul>
