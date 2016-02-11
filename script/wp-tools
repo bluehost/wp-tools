@@ -18,7 +18,7 @@ wp-tools - tools to backup and upgrade WordPress installations
 =head1 DESCRIPTION
 
 WordPress Tools is a set of tools that allow you to backup, restore, and upgrade WordPress sites. The tools are
-especially useful for upgrading outdated sites and for scripting the backing up and upgrading of B<many> sites.
+especially useful for upgrading very outdated sites and for scripting the backing up and upgrading of B<many> sites.
 
 WordPress Tools was built to make the Internet more secure. A huge number of websites on the Internet use
 L<WordPress|https://wordpress.org/>, because it's awesome, but a large portion of those sites do not run the latest
@@ -35,6 +35,8 @@ killing your server.
 =head1 INSTALLATION
 
 There are several ways to install WordPress Tools to your system.
+
+Make sure you have L<WP-CLI|http://wp-cli.org/> and the other L</DEPENDENCIES> installed.
 
 =head2 Using cpanm
 
@@ -54,7 +56,7 @@ to install the F<wp-tools> executable to a system directory, like F</usr/local/b
 
 =head2 Downloading just the executable
 
-If you want to handle dependencies yourself and just want the F<wp-tools> executable, you can do:
+If you want to handle the Perl dependencies yourself and just want the F<wp-tools> executable, you can do:
 
     curl -OL https://github.com/bluehost/wp-tools/raw/solo/wp-tools
     chmod +x wp-tools
@@ -72,6 +74,9 @@ If you're a developer and want to hack on the source, clone the repository and p
     dzil listdeps --author --develop --missing | cpanm
 
 =head1 DEPENDENCIES
+
+WordPress Tools requires these other programs and libraries in order to do its work. You probably have most of these on
+your system already, and the cpanm method of installing wp-tools will handle the Perl module dependencies for you.
 
 =over 4
 
@@ -105,7 +110,7 @@ procps
 
 =item *
 
-Various perl modules (see the distributed F<cpanfile> file for a list)
+Various Perl modules (see the distributed F<cpanfile> file for a list)
 
 =back
 
