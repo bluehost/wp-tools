@@ -29,7 +29,7 @@ open(my $out, '>', "$solodir/wp-tools");
 while (my $line = <$in>) {
     $line = "#!/usr/bin/env perl\n" if $line =~ /^#!perl/;
     $line = '' if $line =~ /^use App::WordPressTools;/;
-    $line = "our \$VERSION = $version;\n" if $line =~ /^our \$VERSION = /;
+    $line = "our \$VERSION = '$version';\n" if $line =~ /^our \$VERSION = /;
     print $out $line;
 }
 chmod(0755, "$solodir/wp-tools");
