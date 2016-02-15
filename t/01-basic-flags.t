@@ -3,11 +3,23 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Capture::Tiny qw(capture);
+use Config;
+use Test::More tests => 3;
 
-my @wp_tools = qw(blib/script/wp-tools);
-@wp_tools = qw(perl script/wp-tools) if !-x $wp_tools[0];
+my $perl        = $Config{perlpath};
+my @wp_tools    = ($perl, 'script/wp-tools');
 
-is(system(@wp_tools, '--version'),  0, '--version flag works');
-is(system(@wp_tools, '--help'),     0, '--help flag works');
+{
+    my ($out, $err) = capture { system(@wp_tools, '--version') };
+    my $exit_status = $? >> 8;
+    is($exit_status, 0, '--version flag works') or diag($out, $err);
+    like($out, qr/version \d/, '--version prints a version');
+}
+
+{
+    my ($out, $err) = capture { system(@wp_tools, '--help') };
+    my $exit_status = $? >> 8;
+    is($exit_status, 0, '--help flag works') or diag($out, $err);
+}
 
