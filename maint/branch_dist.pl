@@ -27,9 +27,9 @@ chomp $tree_ref;
 
 system(qw{git reset}, $distdir);
 
-my $branch_oldref_safe = shell_quote($branch_oldref);
+my $branch_name_safe = shell_quote($branch_name);
 my $tree_ref_safe = shell_quote($tree_ref);
-my $parent = $branch_oldref ? "-p $branch_oldref_safe" : '';
+my $parent = $branch_oldref ? "-p $branch_name_safe" : '';
 my $commit_ref = `git commit-tree -m $commit_msg $parent $tree_ref_safe`;
 chomp $commit_ref;
 
