@@ -34,6 +34,7 @@ while (my $line = <$in>) {
 }
 chmod(0755, "$solodir/wp-tools");
 copy("$distdir/README", "$solodir/README");
+copy("$distdir/CONTRIBUTING", "$solodir/CONTRIBUTING");
 
 system(qw{git update-index --add}, glob("$solodir/*"));
 my $tree_ref = `git write-tree --prefix=$solodir/`;
