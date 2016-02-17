@@ -267,7 +267,7 @@ use Digest::SHA qw(sha1_hex);
 use Fcntl qw(:DEFAULT :flock);
 use File::Find;
 use File::Path;
-use File::Slurp qw(read_file write_file);
+use File::Slurper qw(read_text write_text);
 use Getopt::Long qw(GetOptions);
 use LWP::UserAgent;
 use String::ShellQuote;
@@ -402,7 +402,7 @@ if ($args->{max_load} && !$args->{force}) {
 
 ### check box memory usage
 if ($args->{min_freemem} && !$args->{force}) {
-    my $mem = read_file(q{/proc/meminfo});
+    my $mem = read_text(q{/proc/meminfo});
     my $free;
     for my $memcheck (qw(MemFree SwapFree Buffers Cached)) {
         ($free->{$memcheck}) = $mem =~ m/^$memcheck:*\s*(\d+)/gsm;
@@ -650,7 +650,7 @@ sub backup {
             open (my $fh, '>', $defaults_file) or die "Cannot write to $defaults_file: $!";
             close $fh;
             chmod(0600, $defaults_file) or die "Cannot chmod $defaults_file: $!";
-            write_file($defaults_file,"[client]\nuser=$username\npassword=$password");
+            write_text($defaults_file,"[client]\nuser=$username\npassword=$password");
             my $databaseq = shell_quote($database);
             $dump_command = "mysqldump --defaults-file=$defaults_file $databaseq 2>&1 >$db_file";
             my $result = `$dump_command`;
@@ -848,7 +848,7 @@ sub restore {
                 open (my $fh, '>', $defaults_file) or die "Cannot write to $defaults_file: $!";
                 close $fh;
                 chmod(0600, $defaults_file) or die "Cannot chmod $defaults_file: $!";
-                write_file($defaults_file,"[client]\nuser=$username\npassword=$password");
+                write_text($defaults_file,"[client]\nuser=$username\npassword=$password");
                 my $databaseq = shell_quote($database);
                 `mysql --defaults-file=$defaults_file $databaseq <$db_file`;
                 if ($?) {
@@ -1004,7 +1004,7 @@ sub upgrade {
         open (my $fh, '>', $defaults_file) or die "Cannot write to $defaults_file: $!";
         close $fh;
         chmod(0600, $defaults_file) or die "Cannot chmod $defaults_file: $!";
-        write_file($defaults_file,"[client]\nuser=$username\npassword=$password");
+        write_text($defaults_file,"[client]\nuser=$username\npassword=$password");
         my $table = "${prefix}options";
         my $databaseq = shell_quote($database);
         my $siteurl_sql = qq{mysql -N -B -e --defaults-file=$defaults_file $databaseq "SELECT option_value FROM $table WHERE option_name = 'siteurl'"};
