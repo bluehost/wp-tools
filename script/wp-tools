@@ -269,7 +269,7 @@ use File::Find;
 use File::Path;
 use File::Slurper qw(read_text write_text);
 use Getopt::Long qw(GetOptions);
-use LWP::UserAgent;
+use HTTP::Tiny;
 use String::ShellQuote;
 
 
@@ -962,7 +962,7 @@ sub upgrade {
     }
 
     my $current_status;
-    my $ua = LWP::UserAgent->new();
+    my $http = HTTP::Tiny->new(timeout => 30);
     if ($plus3713) {
         ### default wp-cli status check
         $current_status->{'wpcli_std'} = _run_wpcli($nice_path, q{eval 'echo "ok";'});
@@ -973,12 +973,12 @@ sub upgrade {
         ### get url and current default page size/status code
         $current_status->{'siteurl'}  = _run_wpcli($nice_path, q{option get siteurl});;
         $current_status->{'adminurl'} = "$current_status->{'siteurl'}/wp-admin";
-        my $resp = $ua->head($current_status->{'siteurl'});
-        $current_status->{'code'} = $resp->code;
-        $current_status->{'size'} = $resp->content_length() || 1;
-        my $aresp = $ua->head($current_status->{'adminurl'});
-        $current_status->{'admincode'} = $aresp->code;
-        $current_status->{'adminsize'} = $aresp->content_length() || 1;
+        my $resp = $http->head($current_status->{'siteurl'});
+        $current_status->{'code'} = $resp->{'status'};
+        $current_status->{'size'} = $resp->{'headers'}{'content-length'} || 1;
+        my $aresp = $http->head($current_status->{'adminurl'});
+        $current_status->{'admincode'} = $aresp->{'status'};
+        $current_status->{'adminsize'} = $aresp->{'headers'}{'content-length'} || 1;
     }
     elsif (-f "$args->{'path'}/wp-config.php") {
         ### get url and current default page size/status code
@@ -1010,12 +1010,12 @@ sub upgrade {
         my $siteurl_sql = qq{mysql -N -B -e --defaults-file=$defaults_file $databaseq "SELECT option_value FROM $table WHERE option_name = 'siteurl'"};
         $current_status->{'siteurl'} = `$siteurl_sql`;
         $current_status->{'adminurl'} = "$current_status->{'siteurl'}/wp-admin";
-        my $resp = $ua->head($current_status->{'siteurl'});
-        $current_status->{'code'} = $resp->code;
-        $current_status->{'size'} = $resp->content_length() || 1;
-        my $aresp = $ua->head($current_status->{'adminurl'});
-        $current_status->{'admincode'} = $aresp->code;
-        $current_status->{'adminsize'} = $aresp->content_length() || 1;
+        my $resp = $http->head($current_status->{'siteurl'});
+        $current_status->{'code'} = $resp->{'status'};
+        $current_status->{'size'} = $resp->{'headers'}{'content-length'} || 1;
+        my $aresp = $http->head($current_status->{'adminurl'});
+        $current_status->{'admincode'} = $aresp->{'status'};
+        $current_status->{'adminsize'} = $aresp->{'headers'}{'content-length'} || 1;
     }
 
     eval {
@@ -1068,28 +1068,28 @@ sub upgrade {
     }
     if (!$args->{'failed'} && $current_status->{'siteurl'}) {
         ### get current default page size and status
-        my $resp       = $ua->head($current_status->{'siteurl'});
-        my $after_size = $resp->content_length() || 1;
+        my $resp       = $http->head($current_status->{'siteurl'});
+        my $after_size = $resp->{'headers'}{'content-length'} || 1;
         my $average    = ($current_status->{'size'} + $after_size) / 2;
         my $div        = $current_status->{'size'}/$after_size;
         if ($div > 1.5 || $div < .5) {
             $args->{'failed'} = 'Site download size changed by more than 50% after update (assuming failure).';
         }
-        my $code = $resp->code;
+        my $code = $resp->{'status'};
         if (!$args->{'failed'} && $code ne $current_status->{'code'} && $code ne '200' && $current_status->{'code'} !~ /^(?:4|5)/) {
             $args->{'failed'} = "Site download status changed from $current_status->{'code'} to $code (assuming failure)";
         }
     }
     if (!$args->{'failed'} && $current_status->{'adminurl'}) {
         ### get current default page size and status
-        my $resp       = $ua->head($current_status->{'adminurl'});
-        my $after_size = $resp->content_length() || 1;
+        my $resp       = $http->head($current_status->{'adminurl'});
+        my $after_size = $resp->{'headers'}{'content-length'} || 1;
         my $average    = ($current_status->{'adminsize'} + $after_size) / 2;
         my $div        = $current_status->{'adminsize'}/$after_size;
         if ($div > 1.5 || $div < .5) {
             $args->{'failed'} = 'Site admin download size changed by more than 50% after update (assuming failure).';
         }
-        my $code = $resp->code;
+        my $code = $resp->{'status'};
         if (!$args->{'failed'} && $code ne $current_status->{'admincode'} && $code ne '200' && $current_status->{'admincode'} !~ /^(?:4|5)/) {
             $args->{'failed'} = "Site admin download status changed from $current_status->{'admincode'} to $code (assuming failure)";
         }
