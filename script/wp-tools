@@ -263,7 +263,7 @@ our $VERSION = $App::WordPressTools::VERSION;
 
 use sigtrap qw(die normal-signals);
 
-use Digest::SHA qw(sha1_hex);
+use Digest::MD5 qw(md5_hex);
 use Fcntl qw(:DEFAULT :flock);
 use File::Find;
 use File::Path;
@@ -507,7 +507,7 @@ if (!keys %pid_files && !$args->{force}) {
 sub _lock_path {
     my $path = shift;
     $path =~ s!/*$!!;
-    my $hash = sha1_hex($path);
+    my $hash = md5_hex($path);
     create_pid_file(".wp_backup-${hash}.pid");
     return $hash;
 }

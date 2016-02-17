@@ -1,5 +1,5 @@
 
-requires 'Digest::SHA';
+requires 'Digest::MD5';
 requires 'Fcntl';
 requires 'File::Find';
 requires 'File::Path';
