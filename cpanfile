@@ -1,4 +1,6 @@
 
+requires 'perl', '5.8.1';
+
 requires 'Digest::MD5';
 requires 'Fcntl';
 requires 'File::Find';
