@@ -443,7 +443,7 @@ else {
 }
 
 ### check space and average IO wait time of the home partition
-if (my ($homeslash) = !$args->{'force'} && $home_dir && $home_dir =~ m{^(/home\d+)/}) {
+if (my ($homeslash) = $home_dir =~ m{^(/home\d+)/} and !$args->{force}) {
     #get available space on /home for the user in question in POSIX standard
     my $df = `df -P $homeslash | tail -1`;
     my ($device,undef,undef,$available) = split(/\s+/, $df);
