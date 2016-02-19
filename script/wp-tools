@@ -253,6 +253,8 @@ The GNU General Public License, Version 2, June 1991
 =cut
 
 
+package wp_tools;
+
 use strict;
 use warnings;
 
@@ -350,7 +352,7 @@ END
 }
 
 if (grep { /^--version$/ } @ARGV) {
-    print "WordPress Tools, version $main::VERSION\n";
+    print "WordPress Tools, version $VERSION\n";
     exit 0;
 }
 
