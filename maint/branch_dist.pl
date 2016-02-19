@@ -32,6 +32,17 @@ if ($branch_oldref_origin && $branch_oldref ne $branch_oldref_origin) {
     $branch_oldref = $branch_oldref_origin
 }
 
+open(my $in,  '<', '.travis.yml');
+open(my $out, '>', "$distdir/.travis.yml");
+while (my $line = <$in>) {
+    $line =~ s/.*(?:cpanm|dzil).*//s;
+    $line =~ s/^install:/install:\n   - "cpanm --quiet --installdeps --notest ."/;
+    $line =~ s/^script:/script:\n   - "perl Makefile.PL && make test"/;
+    print $out $line;
+}
+close($in);
+close($out);
+
 my $commit_msg = shell_quote("Release $version");
 
 system(qw{git add -f}, $distdir);
