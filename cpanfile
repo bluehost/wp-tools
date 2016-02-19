@@ -20,3 +20,12 @@ on test => sub {
     requires 'Test::More';
 };
 
+on develop => sub {
+    requires 'App::FatPacker';
+    requires 'Cwd';
+    requires 'File::pushd';
+    requires 'Module::CoreList';
+    requires 'Perl::Strip';
+    requires 'autodie';
+};
+
