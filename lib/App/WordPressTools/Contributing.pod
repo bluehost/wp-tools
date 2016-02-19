@@ -115,7 +115,7 @@ with any other branch and is maintained by release management scripts.
 
 =head2 Commit Guidelines
 
-In general, follow the <Commit Guidelines|https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines>
+In general, follow the L<Commit Guidelines|https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines>
 from the L<Pro Git|https://git-scm.com/book/en/v2> book. In particular:
 
 =over
