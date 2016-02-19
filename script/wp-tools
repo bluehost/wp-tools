@@ -1014,8 +1014,8 @@ sub upgrade {
         $current_status->{'code'} = $resp->code;
         $current_status->{'size'} = $resp->content_length() || 1;
         my $aresp = $ua->head($current_status->{'adminurl'});
-        $current_status->{'admincode'} = $resp->code;
-        $current_status->{'adminsize'} = $resp->content_length() || 1;
+        $current_status->{'admincode'} = $aresp->code;
+        $current_status->{'adminsize'} = $aresp->content_length() || 1;
     }
 
     eval {
