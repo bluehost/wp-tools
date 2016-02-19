@@ -1,0 +1,23 @@
+sudo: false
+language: perl
+perl:
+   - 'blead'
+   - '5.20'
+   - '5.18'
+   - '5.16'
+   - '5.14'
+   - '5.12'
+   - '5.10'
+   - '5.8'
+matrix:
+   allow_failures:
+      - perl: 'blead'
+      - perl: '5.8'
+   fast_finish: true
+before_install:
+   - git config --global user.name "TravisCI"
+   - git config --global user.email $HOSTNAME":not-for-mail@travis-ci.org"
+install:
+   - "cpanm --quiet --installdeps --notest ."
+script:
+   - "perl Makefile.PL && make test"

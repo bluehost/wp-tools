@@ -45,8 +45,8 @@ INSTALLATION
 
  Using cpanm
 
-    The easiest way to install WordPress Tools is using cpanm. If you have
-    a local perl (plenv, perlbrew, etc.), you can just do:
+    You can install WordPress Tools using cpanm. If you have a local perl
+    (plenv, perlbrew, etc.), you can just do:
 
         cpanm App::WordPressTools
 
@@ -63,13 +63,14 @@ INSTALLATION
 
  Downloading just the executable
 
-    If you want to handle the Perl dependencies yourself and just want the
-    wp-tools executable, you can do:
+    You may also choose to download wp-tools as a single executable, like
+    this:
 
         curl -OL https://raw.githubusercontent.com/bluehost/wp-tools/solo/wp-tools
         chmod +x wp-tools
 
-    to download the wp-tools executable to your current directory.
+    This executable includes all the non-core Perl module dependencies
+    built-in.
 
  For developers
 
@@ -203,6 +204,15 @@ BUGS
     you run wp-tools from outside of your home directory with a relative
     path, your paths won't be found. This is a temporary limitation that
     will be fixed soon.
+
+CONTRIBUTORS
+
+    Many people were involved in the creation of WordPress Tools. In
+    particular:
+
+      * Matt Andersen
+
+      * Gabriel Peery
 
 AUTHORS
 

@@ -40,8 +40,7 @@ Make sure you have L<WP-CLI|http://wp-cli.org/> and the other L</DEPENDENCIES> i
 
 =head2 Using cpanm
 
-The easiest way to install WordPress Tools is using L<cpanm>. If you have a local perl (plenv, perlbrew, etc.), you can
-just do:
+You can install WordPress Tools using L<cpanm>. If you have a local perl (plenv, perlbrew, etc.), you can just do:
 
     cpanm App::WordPressTools
 
@@ -56,12 +55,12 @@ to install the F<wp-tools> executable to a system directory, like F</usr/local/b
 
 =head2 Downloading just the executable
 
-If you want to handle the Perl dependencies yourself and just want the F<wp-tools> executable, you can do:
+You may also choose to download F<wp-tools> as a single executable, like this:
 
     curl -OL https://raw.githubusercontent.com/bluehost/wp-tools/solo/wp-tools
     chmod +x wp-tools
 
-to download the F<wp-tools> executable to your current directory.
+This executable includes all the non-core Perl module dependencies built-in.
 
 =head2 For developers
 
@@ -208,6 +207,22 @@ before executing its command, and it does B<NOT> translate relative paths. This 
 outside of your home directory with a relative path, your paths won't be found. This is a temporary limitation that will
 be fixed soon.
 
+=head1 CONTRIBUTORS
+
+Many people were involved in the creation of WordPress Tools. In particular:
+
+=over 4
+
+=item *
+
+Matt Andersen
+
+=item *
+
+Gabriel Peery
+
+=back
+
 =head1 AUTHORS
 
 =over 4
@@ -236,6 +251,10 @@ The GNU General Public License, Version 2, June 1991
 
 =cut
 
+# FATPACK - Do not remove this line.
+
+
+package wp_tools;
 
 use strict;
 use warnings;
@@ -245,13 +264,13 @@ our $VERSION = $App::WordPressTools::VERSION;
 
 use sigtrap qw(die normal-signals);
 
-use Digest::SHA qw(sha1_hex);
+use Digest::MD5 qw(md5_hex);
 use Fcntl qw(:DEFAULT :flock);
 use File::Find;
 use File::Path;
-use File::Slurp qw(read_file write_file);
+use File::Slurper qw(read_text write_text);
 use Getopt::Long qw(GetOptions);
-use LWP::UserAgent;
+use HTTP::Tiny;
 use String::ShellQuote;
 
 
@@ -334,7 +353,7 @@ END
 }
 
 if (grep { /^--version$/ } @ARGV) {
-    print "WordPress Tools, version $main::VERSION\n";
+    print "WordPress Tools, version $VERSION\n";
     exit 0;
 }
 
@@ -384,7 +403,7 @@ if ($args->{max_load} && !$args->{force}) {
 
 ### check box memory usage
 if ($args->{min_freemem} && !$args->{force}) {
-    my $mem = read_file(q{/proc/meminfo});
+    my $mem = read_text(q{/proc/meminfo});
     my $free;
     for my $memcheck (qw(MemFree SwapFree Buffers Cached)) {
         ($free->{$memcheck}) = $mem =~ m/^$memcheck:*\s*(\d+)/gsm;
@@ -425,7 +444,7 @@ else {
 }
 
 ### check space and average IO wait time of the home partition
-if (my ($homeslash) = !$args->{'force'} && $home_dir && $home_dir =~ m{^(/home\d+)/}) {
+if (my ($homeslash) = $home_dir =~ m{^(/home\d+)/} and !$args->{force}) {
     #get available space on /home for the user in question in POSIX standard
     my $df = `df -P $homeslash | tail -1`;
     my ($device,undef,undef,$available) = split(/\s+/, $df);
@@ -489,7 +508,7 @@ if (!keys %pid_files && !$args->{force}) {
 sub _lock_path {
     my $path = shift;
     $path =~ s!/*$!!;
-    my $hash = sha1_hex($path);
+    my $hash = md5_hex($path);
     create_pid_file(".wp_backup-${hash}.pid");
     return $hash;
 }
@@ -632,7 +651,7 @@ sub backup {
             open (my $fh, '>', $defaults_file) or die "Cannot write to $defaults_file: $!";
             close $fh;
             chmod(0600, $defaults_file) or die "Cannot chmod $defaults_file: $!";
-            write_file($defaults_file,"[client]\nuser=$username\npassword=$password");
+            write_text($defaults_file,"[client]\nuser=$username\npassword=$password");
             my $databaseq = shell_quote($database);
             $dump_command = "mysqldump --defaults-file=$defaults_file $databaseq 2>&1 >$db_file";
             my $result = `$dump_command`;
@@ -830,7 +849,7 @@ sub restore {
                 open (my $fh, '>', $defaults_file) or die "Cannot write to $defaults_file: $!";
                 close $fh;
                 chmod(0600, $defaults_file) or die "Cannot chmod $defaults_file: $!";
-                write_file($defaults_file,"[client]\nuser=$username\npassword=$password");
+                write_text($defaults_file,"[client]\nuser=$username\npassword=$password");
                 my $databaseq = shell_quote($database);
                 `mysql --defaults-file=$defaults_file $databaseq <$db_file`;
                 if ($?) {
@@ -944,7 +963,7 @@ sub upgrade {
     }
 
     my $current_status;
-    my $ua = LWP::UserAgent->new();
+    my $http = HTTP::Tiny->new(timeout => 30);
     if ($plus3713) {
         ### default wp-cli status check
         $current_status->{'wpcli_std'} = _run_wpcli($nice_path, q{eval 'echo "ok";'});
@@ -955,12 +974,12 @@ sub upgrade {
         ### get url and current default page size/status code
         $current_status->{'siteurl'}  = _run_wpcli($nice_path, q{option get siteurl});;
         $current_status->{'adminurl'} = "$current_status->{'siteurl'}/wp-admin";
-        my $resp = $ua->head($current_status->{'siteurl'});
-        $current_status->{'code'} = $resp->code;
-        $current_status->{'size'} = $resp->content_length() || 1;
-        my $aresp = $ua->head($current_status->{'adminurl'});
-        $current_status->{'admincode'} = $aresp->code;
-        $current_status->{'adminsize'} = $aresp->content_length() || 1;
+        my $resp = $http->head($current_status->{'siteurl'});
+        $current_status->{'code'} = $resp->{'status'};
+        $current_status->{'size'} = $resp->{'headers'}{'content-length'} || 1;
+        my $aresp = $http->head($current_status->{'adminurl'});
+        $current_status->{'admincode'} = $aresp->{'status'};
+        $current_status->{'adminsize'} = $aresp->{'headers'}{'content-length'} || 1;
     }
     elsif (-f "$args->{'path'}/wp-config.php") {
         ### get url and current default page size/status code
@@ -986,18 +1005,18 @@ sub upgrade {
         open (my $fh, '>', $defaults_file) or die "Cannot write to $defaults_file: $!";
         close $fh;
         chmod(0600, $defaults_file) or die "Cannot chmod $defaults_file: $!";
-        write_file($defaults_file,"[client]\nuser=$username\npassword=$password");
+        write_text($defaults_file,"[client]\nuser=$username\npassword=$password");
         my $table = "${prefix}options";
         my $databaseq = shell_quote($database);
         my $siteurl_sql = qq{mysql -N -B -e --defaults-file=$defaults_file $databaseq "SELECT option_value FROM $table WHERE option_name = 'siteurl'"};
         $current_status->{'siteurl'} = `$siteurl_sql`;
         $current_status->{'adminurl'} = "$current_status->{'siteurl'}/wp-admin";
-        my $resp = $ua->head($current_status->{'siteurl'});
-        $current_status->{'code'} = $resp->code;
-        $current_status->{'size'} = $resp->content_length() || 1;
-        my $aresp = $ua->head($current_status->{'adminurl'});
-        $current_status->{'admincode'} = $resp->code;
-        $current_status->{'adminsize'} = $resp->content_length() || 1;
+        my $resp = $http->head($current_status->{'siteurl'});
+        $current_status->{'code'} = $resp->{'status'};
+        $current_status->{'size'} = $resp->{'headers'}{'content-length'} || 1;
+        my $aresp = $http->head($current_status->{'adminurl'});
+        $current_status->{'admincode'} = $aresp->{'status'};
+        $current_status->{'adminsize'} = $aresp->{'headers'}{'content-length'} || 1;
     }
 
     eval {
@@ -1050,28 +1069,28 @@ sub upgrade {
     }
     if (!$args->{'failed'} && $current_status->{'siteurl'}) {
         ### get current default page size and status
-        my $resp       = $ua->head($current_status->{'siteurl'});
-        my $after_size = $resp->content_length() || 1;
+        my $resp       = $http->head($current_status->{'siteurl'});
+        my $after_size = $resp->{'headers'}{'content-length'} || 1;
         my $average    = ($current_status->{'size'} + $after_size) / 2;
         my $div        = $current_status->{'size'}/$after_size;
         if ($div > 1.5 || $div < .5) {
             $args->{'failed'} = 'Site download size changed by more than 50% after update (assuming failure).';
         }
-        my $code = $resp->code;
+        my $code = $resp->{'status'};
         if (!$args->{'failed'} && $code ne $current_status->{'code'} && $code ne '200' && $current_status->{'code'} !~ /^(?:4|5)/) {
             $args->{'failed'} = "Site download status changed from $current_status->{'code'} to $code (assuming failure)";
         }
     }
     if (!$args->{'failed'} && $current_status->{'adminurl'}) {
         ### get current default page size and status
-        my $resp       = $ua->head($current_status->{'adminurl'});
-        my $after_size = $resp->content_length() || 1;
+        my $resp       = $http->head($current_status->{'adminurl'});
+        my $after_size = $resp->{'headers'}{'content-length'} || 1;
         my $average    = ($current_status->{'adminsize'} + $after_size) / 2;
         my $div        = $current_status->{'adminsize'}/$after_size;
         if ($div > 1.5 || $div < .5) {
             $args->{'failed'} = 'Site admin download size changed by more than 50% after update (assuming failure).';
         }
-        my $code = $resp->code;
+        my $code = $resp->{'status'};
         if (!$args->{'failed'} && $code ne $current_status->{'admincode'} && $code ne '200' && $current_status->{'admincode'} !~ /^(?:4|5)/) {
             $args->{'failed'} = "Site admin download status changed from $current_status->{'admincode'} to $code (assuming failure)";
         }

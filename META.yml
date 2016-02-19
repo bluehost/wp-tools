@@ -5,6 +5,7 @@ author:
   - 'Charles McGarvey <cmcgarvey@bluehost.com>'
   - 'Garth Mortensen <gmortensen@bluehost.com>'
 build_requires:
+  Capture::Tiny: '0'
   Test::More: '0'
 configure_requires:
   ExtUtils::MakeMaker: '0'
@@ -18,19 +19,32 @@ name: App-WordPressTools
 no_index:
   directory:
     - t
+provides:
+  App::WordPressTools:
+    file: lib/App/WordPressTools.pm
+    version: '1.01'
+  wp_tools:
+    file: script/wp-tools
+    version: '1.01'
+recommends:
+  IO::Socket::SSL: '1.56'
+  Net::SSLeay: '1.49'
 requires:
-  Digest::SHA: '0'
+  Digest::MD5: '0'
   Fcntl: '0'
   File::Find: '0'
   File::Path: '0'
-  File::Slurp: '0'
+  File::Slurper: '0'
   Getopt::Long: '0'
-  LWP::UserAgent: '0'
+  HTTP::Tiny: '0'
   String::ShellQuote: '0'
+  perl: v5.8.1
   sigtrap: '0'
 resources:
   bugtracker: https://github.com/bluehost/wp-tools/issues
   repository: git://github.com/bluehost/wp-tools.git
-version: '1.0'
+version: '1.01'
 x_contributors:
+  - 'Charles McGarvey <chazmcgarvey@brokenzipper.com>'
+  - 'Jason Hall <jayce@lug-nut.com>'
   - 'Mike Hansen <web.mhansen@gmail.com>'

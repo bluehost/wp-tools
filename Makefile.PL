@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-
+use 5.008001;
 
 use ExtUtils::MakeMaker;
 
@@ -17,22 +17,24 @@ my %WriteMakefileArgs = (
     "script/wp-tools"
   ],
   "LICENSE" => "gpl",
+  "MIN_PERL_VERSION" => "5.008001",
   "NAME" => "App::WordPressTools",
   "PREREQ_PM" => {
-    "Digest::SHA" => 0,
+    "Digest::MD5" => 0,
     "Fcntl" => 0,
     "File::Find" => 0,
     "File::Path" => 0,
-    "File::Slurp" => 0,
+    "File::Slurper" => 0,
     "Getopt::Long" => 0,
-    "LWP::UserAgent" => 0,
+    "HTTP::Tiny" => 0,
     "String::ShellQuote" => 0,
     "sigtrap" => 0
   },
   "TEST_REQUIRES" => {
+    "Capture::Tiny" => 0,
     "Test::More" => 0
   },
-  "VERSION" => "1.0",
+  "VERSION" => "1.01",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -40,13 +42,14 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "Digest::SHA" => 0,
+  "Capture::Tiny" => 0,
+  "Digest::MD5" => 0,
   "Fcntl" => 0,
   "File::Find" => 0,
   "File::Path" => 0,
-  "File::Slurp" => 0,
+  "File::Slurper" => 0,
   "Getopt::Long" => 0,
-  "LWP::UserAgent" => 0,
+  "HTTP::Tiny" => 0,
   "String::ShellQuote" => 0,
   "Test::More" => 0,
   "sigtrap" => 0
