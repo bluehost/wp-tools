@@ -38,8 +38,7 @@ Make sure you have [WP-CLI](http://wp-cli.org/) and the other ["DEPENDENCIES"](#
 
 ## Using cpanm
 
-The easiest way to install WordPress Tools is using [cpanm](https://metacpan.org/pod/cpanm). If you have a local perl (plenv, perlbrew, etc.), you can
-just do:
+You can install WordPress Tools using [cpanm](https://metacpan.org/pod/cpanm). If you have a local perl (plenv, perlbrew, etc.), you can just do:
 
     cpanm App::WordPressTools
 
@@ -54,12 +53,12 @@ to install the `wp-tools` executable to a system directory, like `/usr/local/bin
 
 ## Downloading just the executable
 
-If you want to handle the Perl dependencies yourself and just want the `wp-tools` executable, you can do:
+You may also choose to download `wp-tools` as a single executable, like this:
 
     curl -OL https://raw.githubusercontent.com/bluehost/wp-tools/solo/wp-tools
     chmod +x wp-tools
 
-to download the `wp-tools` executable to your current directory.
+This executable includes all the non-core Perl module dependencies built-in.
 
 ## For developers
 

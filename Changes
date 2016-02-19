@@ -2,7 +2,21 @@ Revision history for App::WordPressTools (wp-tools).
 
 {{$NEXT}}
 
+1.01  2016-02-19 15:51:50 MST
+
+  * Fixed a bug with complete version number not being preserved.
+  * Fixed a bug that made --force ineffective against the disk space check.
+  * Fixed a bug related to innacurate admin page checking on upgrade.
+  * Fixed test scripts to invoke the correct perl.
+  * Added documentation for how to contribute.
+  * Added Travis CI configuration for automated testing (thanks Jason Hall).
+  * Fixed various issues with the dzil config and maintenance scripts.
+  * Replaced the File::Slurp dependency with File::Slurper.
+  * Replaced the LWP::UserAgent dependency with HTTP::Tiny.
+  * Replaced the Digest::SHA dependency with Digest::MD5.
+  * Made the solo distribution be fatpacked for easier installation by curl.
+
 1.0  2016-02-11 14:41:53 MST
 
-  * initial commit
+  * First release of wp-tools to the world.
 

@@ -2,7 +2,6 @@ sudo: false
 language: perl
 perl:
    - 'blead'
-   - '5.22'
    - '5.20'
    - '5.18'
    - '5.16'

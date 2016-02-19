@@ -88,7 +88,7 @@ we think that's great. Here's how to do it:
 
 ## Commit Guidelines
 
-In general, follow the <Commit Guidelines|https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines>
+In general, follow the [Commit Guidelines](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines)
 from the [Pro Git](https://git-scm.com/book/en/v2) book. In particular:
 
 - Clean up your branch.
