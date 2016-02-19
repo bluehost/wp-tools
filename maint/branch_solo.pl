@@ -37,15 +37,10 @@ my $commit_msg = shell_quote("Release $version");
 my $solodir = "solo_branch.$$";
 make_path($solodir);
 
-open(my $in,  '<', "$distdir/script/wp-tools");
-open(my $out, '>', "$solodir/wp-tools");
-while (my $line = <$in>) {
-    $line = "#!/usr/bin/env perl\n" if $line =~ /^#!perl/;
-    $line = '' if $line =~ /^use App::WordPressTools;/;
-    $line = "our \$VERSION = '$version';\n" if $line =~ /^our \$VERSION = /;
-    print $out $line;
-}
-chmod(0755, "$solodir/wp-tools");
+use Config;
+system($Config{'perlpath'}, qw{maint/fatpack.pl});
+move('wp-tools', "$solodir/wp-tools");
+
 copy("$distdir/README", "$solodir/README");
 copy("$distdir/CONTRIBUTING", "$solodir/CONTRIBUTING");
 
