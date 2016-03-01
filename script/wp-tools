@@ -958,7 +958,7 @@ sub upgrade {
 
     #if a backup is made, disable maintenance mode temporarily
     if (-e '.maintenance') {
-        $maintenance = '.not.maintenanc';
+        $maintenance = '.not.maintenance';
         rename('.maintenance',$maintenance);
     }
 
