@@ -876,14 +876,22 @@ sub restore {
             }
         }
     };
+
     if ($@) {
         my $err = $@;
+        my $defunct_path = time . "$path.defunct";
         if (-d $saved_path) {
-            rmtree($path);
-            if (!rename($saved_path, $path)) {
-                # this is the sad case
-                $err .= "; also could not move $saved_path back to $path: $!";
-                undef $saved_path;  # do not wipe out if we couldn't fully fix it
+            my $defunct_path = "$path.defunct_" . time;
+            if (rename($path, $defunct_path)) {
+                if (!rename($saved_path, $path)) {
+                    # this is the sad case
+                    $err .= "; also could not move $saved_path back to $path: $!";
+                    undef $saved_path;  # do not wipe out if we couldn't fully fix it
+                    rename($defunct_path, $path);
+                }
+                if (-d $defunct_path) {
+                    rmtree($defunct_path);
+                }
             }
         }
         die $err;
