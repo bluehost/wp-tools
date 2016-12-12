@@ -6,7 +6,7 @@
       "Garth Mortensen <gmortensen@bluehost.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 5.043, CPAN::Meta::Converter version 2.150001",
+   "generated_by" : "Dist::Zilla version 6.008, CPAN::Meta::Converter version 2.150001",
    "license" : [
       "gpl_2"
    ],
@@ -67,11 +67,11 @@
    "provides" : {
       "App::WordPressTools" : {
          "file" : "lib/App/WordPressTools.pm",
-         "version" : "1.01"
+         "version" : "1.02"
       },
       "wp_tools" : {
          "file" : "script/wp-tools",
-         "version" : "1.01"
+         "version" : "1.02"
       }
    },
    "release_status" : "stable",
@@ -85,11 +85,14 @@
          "web" : "https://github.com/bluehost/wp-tools"
       }
    },
-   "version" : "1.01",
+   "version" : "1.02",
    "x_contributors" : [
       "Charles McGarvey <chazmcgarvey@brokenzipper.com>",
+      "Gabriel Peery <gabriel.peery@endurance.com>",
+      "Garth Mortensen <jmort47@hotmail.com>",
       "Jason Hall <jayce@lug-nut.com>",
       "Mike Hansen <web.mhansen@gmail.com>"
-   ]
+   ],
+   "x_serialization_backend" : "Cpanel::JSON::XS version 3.0211"
 }
 
