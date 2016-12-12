@@ -2,6 +2,12 @@ Revision history for App::WordPressTools (wp-tools).
 
 {{$NEXT}}
 
+1.02  2016-12-12 16:00:29 MST
+
+  * Reduce chance of leaving site directory in an inconsistent state if the
+    script is killed at the wrong time.
+  * Fix broken logic for applying backup skips.
+
 1.01  2016-02-19 15:51:50 MST
 
   * Fixed a bug with complete version number not being preserved.
