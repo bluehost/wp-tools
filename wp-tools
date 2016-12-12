@@ -258,7 +258,7 @@ BEGIN {
 my %fatpacked;
 
 $fatpacked{"App/WordPressTools.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'APP_WORDPRESSTOOLS';
-  package App::WordPressTools;our$VERSION='1.0';1;
+  package App::WordPressTools;our$VERSION='1.01';1;
 APP_WORDPRESSTOOLS
 
 $fatpacked{"File/Slurper.pm"} = '#line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'FILE_SLURPER';
@@ -625,32 +625,32 @@ sub backup {
     our $manifest_file  = "wp_backup${hash}.MANIFEST";
     our $defaults_file  = "wp_backup${hash}.temporary.my.cnf";
 
-    my $skips = {
-        uploads => 0,
-        backups => 0,
-    };
-    my $wp_content_path = shell_quote("$args->{'path'}/wp-content");
-    my $dums = eval{`du -ms $wp_content_path/*`};
-    my $wp_content_size;
-    for my $entry (split(/[\r\n]+/, $dums)) {
-        my ($size, $path) = $entry =~ m/^(\d+).*wp-content\/(.*)$/;
-        $wp_content_size->{$path} = $size;
-    }
-    eval {
-        opendir (my $dh, $wp_content_path) || die;
-        while (my $path = readdir $dh) {
-            next if $path eq '.' || $path eq '..';
-            if ($path =~ /(?:backup|upload)/i) {
-                $skips->{$path} = $wp_content_size->{$path};
-            }
-            if ($wp_content_size->{$path} && $wp_content_size->{$path} > 200 && $path !~ /^(?:themes|plugins|mu-plugins|translations|languages)$/) {
-                $skips->{$path} = $wp_content_size->{$path};
-            }
-        }
-    };
+    my $skips = {};
 
     ### check size of WordPress installation
     if ($args->{max_size} && !$args->{force}) {
+        # find directories that may be skipped
+        my $skippable = {};
+        my $wp_content_path = shell_quote("$args->{'path'}/wp-content");
+        my $dums = eval{`du -ms $wp_content_path/*`};
+        my $wp_content_size;
+        for my $entry (split(/[\r\n]+/, $dums)) {
+            my ($size, $path) = $entry =~ m/^(\d+).*wp-content\/(.*)$/;
+            $wp_content_size->{$path} = $size;
+        }
+        eval {
+            opendir (my $dh, $wp_content_path) || die;
+            while (my $path = readdir $dh) {
+                next if $path eq '.' || $path eq '..';
+                if ($path =~ /(?:backup|upload)/i) {
+                    $skippable->{$path} = $wp_content_size->{$path};
+                }
+                if ($wp_content_size->{$path} && $wp_content_size->{$path} > 200 && $path !~ /^(?:themes|plugins|mu-plugins|translations|languages)$/) {
+                    $skippable->{$path} = $wp_content_size->{$path};
+                }
+            }
+        };
+
         my @paths = map { -e "$nice_path/$_" ? shell_quote("$nice_path/$_") : () } @backup_whitelist;
         my $paths = join(' ', @paths);
         my $size = eval { `du -msc $paths` } || '';
@@ -658,20 +658,17 @@ sub backup {
         if (!$size || $size !~ /^\d+$/) {
             die 'Cannot determine size of WordPress installation';
         }
-        #if $size > $args->{'max_size'}, reduce content that is included in the backup
-        my $backupsize = $size;
         if ($args->{max_size} < $size) {
-            for my $type (keys %$skips) {
-                my $skip_path = shell_quote("$args->{'path'}/wp-content/$type");
-                if (-d $skip_path) {
-                    $skips->{$type} ||= eval { `du -ms $skip_path` } || 0;
-                    $skips->{$type} =~ s/^(\d+).*/$1/s;
-                    $backupsize -= $skips->{$type};
-                }
-                else {
-                    #we cannot skip what does not exist
-                    delete $skips->{$type};
-                }
+            # try to reduce content that is included in the backup
+            my $backupsize = $size;
+            for my $type (sort { $skippable->{$b} <=> $skippable->{$a} } keys %$skippable) {
+                my $skip_path   = "$args->{'path'}/wp-content/$type";
+                my $skip_pathq  = shell_quote($skip_path);
+                next if !-d $skip_path;
+                $skips->{$type} = $skippable->{$type} || eval { `du -ms $skip_pathq` } || 0;
+                $skips->{$type} =~ s/^(\d+).*/$1/s;
+                $backupsize -= $skips->{$type};
+                last if $backupsize <= $args->{max_size};
             }
             if ($args->{max_size} < $backupsize) {
                 die "Cannot backup this WordPress installation because it is too large ($size/$backupsize)";
@@ -947,11 +944,20 @@ sub restore {
     if ($@) {
         my $err = $@;
         if (-d $saved_path) {
-            rmtree($path);
-            if (!rename($saved_path, $path)) {
-                # this is the sad case
-                $err .= "; also could not move $saved_path back to $path: $!";
-                undef $saved_path;  # do not wipe out if we couldn't fully fix it
+            my $defunct_path = $path;
+            $defunct_path =~ s!/+$!!;
+            $defunct_path .= ".defunct_" . time;
+            if (rename($path, $defunct_path)) {
+                if (!rename($saved_path, $path)) {
+                    # this is the sad case
+                    $err .= "; also could not move $saved_path back to $path: $!";
+                    undef $saved_path;  # do not wipe out if we couldn't fully fix it
+                    rename($defunct_path, $path);
+                }
+
+                if (-d $defunct_path) {
+                    rmtree($defunct_path);
+                }
             }
         }
         die $err;
@@ -1023,7 +1029,7 @@ sub upgrade {
 
     #if a backup is made, disable maintenance mode temporarily
     if (-e '.maintenance') {
-        $maintenance = '.not.maintenanc';
+        $maintenance = '.not.maintenance';
         rename('.maintenance',$maintenance);
     }
 
