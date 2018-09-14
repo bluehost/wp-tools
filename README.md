@@ -148,27 +148,26 @@ your system already, and the cpanm method of installing wp-tools will handle the
 # EXAMPLES
 
     # upgrade a site
-    wp-tools upgrade --path=public_html/myblog \
-                     --backupdir=myblog_backups
+    wp-tools upgrade --path=/absolute/path/to/public_html/myblog \
+                     --backupdir=/absolute/path/to/myblog_backups
 
     # upgrade only plugins and themes
-    wp-tools upgrade --path=public_html/myblog  \
-                     --backupdir=myblog_backups \
+    wp-tools upgrade --path=/absolute/path/to/public_html/myblog  \
+                     --backupdir=/absolute/path/to/myblog_backups \
                      --components=plugin,theme
 
     # backup a site
-    wp-tools backup --path=public_html/mysite \
-                    --backupdir=backups/mysite
+    wp-tools backup --path=/absolute/path/to/public_html/mysite \
+                    --backupdir=/absolute/path/to/backups/mysite
 
     # restore a site to a previous state
-    wp-tools restore --backupfile=backups/mysite/wp_backup1428524082.tar.gz
+    wp-tools restore --backupfile=/absolute/path/to/backups/mysite/wp_backup1428524082.tar.gz
 
-# BUGS
+# NOTES
 
-Currently, wp-tools tries very hard to run with your `$HOME` as the current working directory. It will `chdir` there
-before executing its command, and it does **NOT** translate relative paths. This means that if you run wp-tools from
-outside of your home directory with a relative path, your paths won't be found. This is a temporary limitation that will
-be fixed soon.
+Beginning with version 1.03, passing relative paths to `--path`, `--backupdir`, and `--backupfile` is **deprecated**.
+You should use absolute paths (i.e. that begin with a `/`). Relative paths are accepted but will print a warning to
+`STDERR`. This is because using a relative path does not behave as you would think (for boring historical reasons).
 
 # CONTRIBUTORS
 

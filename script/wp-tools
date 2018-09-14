@@ -185,27 +185,26 @@ The restore command will restore a WordPress installation from a backup taken us
 =head1 EXAMPLES
 
     # upgrade a site
-    wp-tools upgrade --path=public_html/myblog \
-                     --backupdir=myblog_backups
+    wp-tools upgrade --path=/absolute/path/to/public_html/myblog \
+                     --backupdir=/absolute/path/to/myblog_backups
 
     # upgrade only plugins and themes
-    wp-tools upgrade --path=public_html/myblog  \
-                     --backupdir=myblog_backups \
+    wp-tools upgrade --path=/absolute/path/to/public_html/myblog  \
+                     --backupdir=/absolute/path/to/myblog_backups \
                      --components=plugin,theme
 
     # backup a site
-    wp-tools backup --path=public_html/mysite \
-                    --backupdir=backups/mysite
+    wp-tools backup --path=/absolute/path/to/public_html/mysite \
+                    --backupdir=/absolute/path/to/backups/mysite
 
     # restore a site to a previous state
-    wp-tools restore --backupfile=backups/mysite/wp_backup1428524082.tar.gz
+    wp-tools restore --backupfile=/absolute/path/to/backups/mysite/wp_backup1428524082.tar.gz
 
-=head1 BUGS
+=head1 NOTES
 
-Currently, wp-tools tries very hard to run with your C<$HOME> as the current working directory. It will C<chdir> there
-before executing its command, and it does B<NOT> translate relative paths. This means that if you run wp-tools from
-outside of your home directory with a relative path, your paths won't be found. This is a temporary limitation that will
-be fixed soon.
+Beginning with version 1.03, passing relative paths to C<--path>, C<--backupdir>, and C<--backupfile> is B<deprecated>.
+You should use absolute paths (i.e. that begin with a F</>). Relative paths are accepted but will print a warning to
+C<STDERR>. This is because using a relative path does not behave as you would think (for boring historical reasons).
 
 =head1 CONTRIBUTORS
 
@@ -331,8 +330,8 @@ wp-tools upgrade --path=WORDPRESSPATH ...
 wp-tools restore --backupfile=BACKUPFILE ...
 
     --help            show this help and exit
-    --backupdir=str   path to store WordPress backups (required for backup)
-    --backupfile=str  path to WordPress backup file (required for restore)
+    --backupdir=str   absolute path to store WordPress backups (required for backup)
+    --backupfile=str  absolute path to WordPress backup file (required for restore)
     --components=list comma-separated list of things to upgrade (default: $default->{components})
     --force           try hard to perform the command, disregarding limits if necessary
     --max-await=num   maximum time (ms) for IO requests on the system (default: $default->{max_await})
@@ -343,10 +342,10 @@ wp-tools restore --backupfile=BACKUPFILE ...
     --max-run=num     maximum number of concurrent system-wide executions of this script (default: $default->{max_run})
     --min-freemem=num minimum amount of free memory on the system (default: $default->{min_freemem})
     --min-space=num   minimum amount of free space on the partition (default: $default->{min_space})
-    --path=str        path to WordPress installation (required for backup, upgrade, optional for restore)
+    --path=str        absolute path to WordPress installation (required for backup, upgrade, optional for restore)
     --username=str    if root, drop privileges to specified user and chdir to user's home (required)
     --skip-backup     skips backup as part of an upgrade (not recommended, default: off)
-    --wp-cli=str      command to execute when calling wp_cli (default: $default->{wp_cli})
+    --wp-cli=str      command to execute when calling WP-CLI (default: $default->{wp_cli})
 END
     print "\n\n$alert\n" if $alert;
     exit(defined $exit_status ? $exit_status : 1);
@@ -388,6 +387,14 @@ if (   !$command
     || (!$args->{'components'}  && $command =~ /^(?:upgrade)$/)
     || !$args->{'wp_cli'} ) {
     help(1, "Required parameter missing");
+}
+
+if (!$ENV{WP_TOOLS_SILENCE_DEPRECATION_WARNINGS}) {
+    # print warnings for deprecated args
+    for my $arg (qw{path backup_dir backup_file}) {
+        next if !$args->{$arg} || $args->{$arg} =~ m!^/!;
+        warn "DEPRECATED use of relative path ($args->{$arg}); use \$PWD/$args->{$arg} instead!\n";
+    }
 }
 
 ### check box load
