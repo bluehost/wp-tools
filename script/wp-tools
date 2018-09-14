@@ -676,7 +676,7 @@ sub backup {
 
     ### backup filesystem
     my $backup_filename = "$args->{backup_dir}/$backup_file";
-    mkpath($args->{backup_dir}) if !-d $args->{backup_dir};
+    mkpath($args->{backup_dir}, {mode => 0750}) if !-d $args->{backup_dir};
     my $exclusions = '';
     for my $type (keys %$skips) {
         if (!$skips->{$type}) {
