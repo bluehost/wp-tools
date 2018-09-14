@@ -1,5 +1,5 @@
 package App::WordPressTools;
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 # eventually we should refactor some code out of the script into modules like this
 

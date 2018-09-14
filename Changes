@@ -2,6 +2,14 @@ Revision history for App::WordPressTools (wp-tools).
 
 {{$NEXT}}
 
+1.03  2018-09-13 21:26:05 MDT
+
+  * Security: Backup directories are now created 0750 (i.e. not
+    world-readable) for the benefit of those with trusting umasks. If you use
+    wp-tools in a shared environment, you are encouraged to upgrade.
+  * Deprecated the use of relative paths as arguments to --path, --backupdir,
+    and --backupfile.
+
 1.02  2016-12-12 16:00:29 MST
 
   * Reduce chance of leaving site directory in an inconsistent state if the
