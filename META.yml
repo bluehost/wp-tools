@@ -10,7 +10,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: '0'
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 6.008, CPAN::Meta::Converter version 2.150001'
+generated_by: 'Dist::Zilla version 6.012, CPAN::Meta::Converter version 2.150010'
 license: gpl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -22,10 +22,10 @@ no_index:
 provides:
   App::WordPressTools:
     file: lib/App/WordPressTools.pm
-    version: '1.02'
+    version: '1.03'
   wp_tools:
     file: script/wp-tools
-    version: '1.02'
+    version: '1.03'
 recommends:
   IO::Socket::SSL: '1.56'
   Net::SSLeay: '1.49'
@@ -43,11 +43,12 @@ requires:
 resources:
   bugtracker: https://github.com/bluehost/wp-tools/issues
   repository: git://github.com/bluehost/wp-tools.git
-version: '1.02'
+version: '1.03'
 x_contributors:
   - 'Charles McGarvey <chazmcgarvey@brokenzipper.com>'
   - 'Gabriel Peery <gabriel.peery@endurance.com>'
   - 'Garth Mortensen <jmort47@hotmail.com>'
   - 'Jason Hall <jayce@lug-nut.com>'
   - 'Mike Hansen <web.mhansen@gmail.com>'
-x_serialization_backend: 'YAML::Tiny version 1.69'
+x_generated_by_perl: v5.26.2
+x_serialization_backend: 'YAML::Tiny version 1.73'
