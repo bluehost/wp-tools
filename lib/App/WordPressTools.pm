@@ -14,7 +14,7 @@ program, see L<wp-tools>.
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2016 by Bluehost Inc.
+This software is copyright (c) 2016-2018 by Bluehost Inc.
 
 This is free software, licensed under:
 

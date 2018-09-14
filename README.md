@@ -66,9 +66,9 @@ If you're a developer and want to hack on the source, clone the repository and p
 
     git clone https://github.com/bluehost/wp-tools.git
     cd wp-tools
-    cpanm Dist::Zilla
-    dzil authordeps --missing | cpanm
-    dzil listdeps --author --develop --missing | cpanm
+    cpanm -n Dist::Zilla
+    dzil authordeps --missing |cpanm -n
+    dzil listdeps --author --develop --missing |cpanm -n
 
 # DEPENDENCIES
 
@@ -179,13 +179,13 @@ Many people were involved in the creation of WordPress Tools. In particular:
 
 # AUTHORS
 
-- Seth Johnson &lt;sj@bluehost.com>
-- Charles McGarvey &lt;cmcgarvey@bluehost.com>
-- Garth Mortensen &lt;gmortensen@bluehost.com>
+- Seth Johnson <sj@bluehost.com>
+- Charles McGarvey <cmcgarvey@bluehost.com>
+- Garth Mortensen <gmortensen@bluehost.com>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2016 by Bluehost Inc.
+This software is copyright (c) 2016-2018 by Bluehost Inc.
 
 This is free software, licensed under:
 
