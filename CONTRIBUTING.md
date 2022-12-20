@@ -19,7 +19,7 @@ we think that's great. Here's how to do it:
 
         git clone https://github.com/bluehost/wp-tools.git
 
-2. Install [Dist::Zilla](https://metacpan.org/pod/Dist::Zilla).
+2. Install [Dist::Zilla](https://metacpan.org/pod/Dist%3A%3AZilla).
 
         cpanm Dist::Zilla
 
@@ -157,7 +157,7 @@ and ["Branch Layout"](#branch-layout).
 
 ## Release Workflow
 
-We use [Dist::Zilla](https://metacpan.org/pod/Dist::Zilla) to manage releases. The release management scripts do pretty much all of the work.
+We use [Dist::Zilla](https://metacpan.org/pod/Dist%3A%3AZilla) to manage releases. The release management scripts do pretty much all of the work.
 
 1. Write to the changelog.
 

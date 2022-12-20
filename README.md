@@ -15,6 +15,11 @@ wp-tools - tools to backup and upgrade WordPress installations
 
 # DESCRIPTION
 
+**DEPRECATED** - WordPress Tools has been used to upgrade millions of websites, but there are now better tools available
+and so we no longer maintain WordPress Tools. You can use [WP-CLI](http://wp-cli.org/) directly for keeping your
+websites up-to-date, and look for a [backup plugin](https://wordpress.org/plugins/search/backup/) to manage your
+backups.
+
 WordPress Tools is a set of tools that allow you to backup, restore, and upgrade WordPress sites. The tools are
 especially useful for upgrading very outdated sites and for scripting the backing up and upgrading of **many** sites.
 
